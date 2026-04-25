@@ -63,7 +63,14 @@ function App() {
   const [showMarketing, setShowMarketing] = useState(false);
 
   React.useEffect(() => {
-    localStorage.setItem('weddingConfig', JSON.stringify(config));
+    try {
+      localStorage.setItem('weddingConfig', JSON.stringify(config));
+    } catch (e) {
+      if (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
+        console.warn('Storage limit reached. Large images or music cannot be saved locally.');
+        // We still keep the current session state, but it won't persist on refresh
+      }
+    }
   }, [config]);
 
   const updateConfig = (path, value) => {

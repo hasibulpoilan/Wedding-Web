@@ -8,15 +8,55 @@ const SetupDashboard = ({ config, updateConfig, onFinish }) => {
   const handleFileUpload = (e, path, isStory = false, index = 0) => {
     const file = e.target.files[0];
     if (file) {
+      // Audio warning: Base64 audio is huge
+      if (file.type.startsWith('audio/') && file.size > 2 * 1024 * 1024) {
+        alert("Audio file is too large for local saving (Limit 2MB). Please use a URL instead for larger files.");
+        return;
+      }
+
       const reader = new FileReader();
       reader.onloadend = () => {
-        const base64String = reader.result;
-        if (isStory) {
-          const newStories = [...config.stories];
-          newStories[index].image = base64String;
-          updateConfig('stories', newStories);
+        const result = reader.result;
+        
+        if (file.type.startsWith('image/')) {
+          // Compress Image
+          const img = new Image();
+          img.src = result;
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            const MAX_WIDTH = 800;
+            const MAX_HEIGHT = 800;
+            let width = img.width;
+            let height = img.height;
+
+            if (width > height) {
+              if (width > MAX_WIDTH) {
+                height *= MAX_WIDTH / width;
+                width = MAX_WIDTH;
+              }
+            } else {
+              if (height > MAX_HEIGHT) {
+                width *= MAX_HEIGHT / height;
+                height = MAX_HEIGHT;
+              }
+            }
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7); // 70% quality jpeg
+            
+            if (isStory) {
+              const newStories = [...config.stories];
+              newStories[index].image = compressedBase64;
+              updateConfig('stories', newStories);
+            } else {
+              updateConfig(path, compressedBase64);
+            }
+          };
         } else {
-          updateConfig(path, base64String);
+          // For non-image files (like audio), save as is but warn
+          updateConfig(path, result);
         }
       };
       reader.readAsDataURL(file);
