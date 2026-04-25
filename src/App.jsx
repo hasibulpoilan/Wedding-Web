@@ -6,6 +6,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Rocket } from 'lucide-react';
 
 const initialConfig = {
+  weddingId: "tanmay-tanya",
+  masterName1: "Tanmay", // The original names set by Hasibul
+  masterName2: "Tanya",
   couple: {
     name1: "Tanmay",
     name2: "Tanya",
@@ -59,7 +62,11 @@ function App() {
     const params = new URLSearchParams(window.location.search);
     return params.get('mode') === 'guest' ? 'invitation' : 'setup';
   });
-  const isGuest = new URLSearchParams(window.location.search).get('mode') === 'guest';
+  
+  const queryParams = new URLSearchParams(window.location.search);
+  const isGuest = queryParams.get('mode') === 'guest';
+  const isAdmin = queryParams.get('role') === 'admin'; // Hasibul's secret access
+  
   const [showMarketing, setShowMarketing] = useState(false);
 
   React.useEffect(() => {
@@ -105,6 +112,7 @@ function App() {
             <SetupDashboard 
               config={config} 
               updateConfig={updateConfig} 
+              isAdmin={isAdmin}
               onFinish={() => setViewMode('invitation')} 
             />
             

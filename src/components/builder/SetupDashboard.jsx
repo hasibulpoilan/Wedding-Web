@@ -2,7 +2,7 @@ import React, { useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Heart, Calendar, MapPin, ImageIcon, Sparkles, Send, Music, Upload, Gift, Share2, Copy, Check } from 'lucide-react';
 
-const SetupDashboard = ({ config, updateConfig, onFinish }) => {
+const SetupDashboard = ({ config, updateConfig, isAdmin, onFinish }) => {
   const fileInputRef = useRef(null);
 
   const handleFileUpload = (e, path, isStory = false, index = 0) => {
@@ -82,9 +82,52 @@ const SetupDashboard = ({ config, updateConfig, onFinish }) => {
           {/* Section 1: The Couple */}
           <section className="space-y-6 bg-white p-8 rounded-[2rem] shadow-sm border border-gold/5">
             <h2 className="flex items-center gap-3 text-lg font-serif text-deep-green border-b border-gold/10 pb-4">
-              <Heart className="w-5 h-5 text-gold" /> The Happy Couple
+              <Heart className="w-5 h-5 text-gold" /> The Happy Couple & Link ID
             </h2>
             <div className="space-y-4">
+              <div>
+                <label className="block text-[10px] uppercase tracking-widest text-neutral-400 mb-2 font-bold ml-1">Unique Wedding ID (URL Slug)</label>
+                <div className="flex items-center gap-2">
+                  <span className="text-[10px] text-neutral-300 font-mono">/invite?id=</span>
+                  <input 
+                    type="text" 
+                    value={config.weddingId || ''}
+                    onChange={(e) => updateConfig('weddingId', e.target.value.toLowerCase().replace(/\s+/g, '-'))}
+                    className="flex-1 p-4 bg-neutral-50 border border-neutral-100 rounded-2xl focus:ring-2 focus:ring-gold/20 outline-none transition-all font-mono text-sm"
+                    placeholder="e.g. tanmay-tanya-2026"
+                  />
+                </div>
+                <p className="text-[8px] text-neutral-400 mt-1 ml-1">* This makes your share link unique (use names or phone number).</p>
+              </div>
+
+              {isAdmin && (
+                <div className="p-4 bg-gold/5 rounded-2xl border border-gold/20 space-y-4">
+                  <p className="text-[10px] font-bold text-gold uppercase tracking-widest">Admin: Set License Holder Names</p>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-[8px] uppercase tracking-widest text-neutral-400 mb-1 font-bold">Master Name 1</label>
+                      <input 
+                        type="text" 
+                        value={config.masterName1}
+                        onChange={(e) => updateConfig('masterName1', e.target.value)}
+                        className="w-full p-2 bg-white border border-gold/20 rounded-xl text-xs outline-none focus:ring-1 focus:ring-gold"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[8px] uppercase tracking-widest text-neutral-400 mb-1 font-bold">Master Name 2</label>
+                      <input 
+                        type="text" 
+                        value={config.masterName2}
+                        onChange={(e) => updateConfig('masterName2', e.target.value)}
+                        className="w-full p-2 bg-white border border-gold/20 rounded-xl text-xs outline-none focus:ring-1 focus:ring-gold"
+                      />
+                    </div>
+                  </div>
+                  <p className="text-[8px] text-neutral-400 italic leading-tight">These names are the "Reference Names". If the owner changes their names to something else, their sharing link will be disabled.</p>
+                </div>
+              )}
+
+              <div className="pt-4 grid grid-cols-2 gap-4">
               <div>
                 <label className="block text-[10px] uppercase tracking-widest text-neutral-400 mb-2 font-bold ml-1">Person 1 Name</label>
                 <input 
@@ -116,7 +159,8 @@ const SetupDashboard = ({ config, updateConfig, onFinish }) => {
                 />
               </div>
             </div>
-          </section>
+          </div>
+        </section>
 
           {/* Section 2: Date & Venue */}
           <section className="space-y-6 bg-white p-8 rounded-[2rem] shadow-sm border border-gold/5">
@@ -482,38 +526,69 @@ const SetupDashboard = ({ config, updateConfig, onFinish }) => {
         </div>
 
           {/* Section 8: Share & Publish */}
-          <section className="col-span-1 md:col-span-2 space-y-8 bg-neutral-900 p-10 rounded-[2.5rem] shadow-2xl relative overflow-hidden text-white">
+          <section className={`col-span-1 md:col-span-2 space-y-8 p-10 rounded-[2.5rem] shadow-2xl relative overflow-hidden text-white transition-all duration-500 ${
+            (isAdmin || (config.couple.name1 === config.masterName1 && config.couple.name2 === config.masterName2)) 
+            ? 'bg-neutral-900 border-none' 
+            : 'bg-red-900/90 border-2 border-red-500 backdrop-blur-md'
+          }`}>
              <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
                 <Share2 className="w-32 h-32" />
              </div>
              
              <div className="relative z-10">
-                <h2 className="text-3xl font-serif mb-2 italic">Ready to Invite?</h2>
-                <p className="text-xs text-neutral-400 uppercase tracking-widest font-bold mb-8">Share your premium cinematic invitation with guests</p>
-                
-                <div className="flex flex-col md:flex-row gap-4 items-center bg-white/5 p-4 rounded-3xl border border-white/10 backdrop-blur-sm">
-                   <div className="flex-1 w-full truncate font-mono text-[10px] text-neutral-300 px-4">
-                      {window.location.origin}/?mode=guest
-                   </div>
-                   <button 
-                     onClick={() => {
-                        const link = `${window.location.origin}/?mode=guest`;
-                        navigator.clipboard.writeText(link);
-                        alert("Guest Link Copied! You can now share this with your friends and family.");
-                     }}
-                     className="px-8 py-3 bg-gold text-white rounded-2xl font-bold text-xs uppercase tracking-widest hover:scale-105 transition-all flex items-center gap-2 w-full md:w-auto justify-center"
-                   >
-                      <Copy className="w-4 h-4" /> Copy Guest Link
-                   </button>
-                </div>
+                {(isAdmin || (config.couple.name1 === config.masterName1 && config.couple.name2 === config.masterName2)) ? (
+                  <>
+                    <h2 className="text-3xl font-serif mb-2 italic">{isAdmin ? 'Admin: Share Invitation' : 'Ready to Invite?'}</h2>
+                    <p className="text-xs text-neutral-400 uppercase tracking-widest font-bold mb-8">
+                       {isAdmin ? 'You are in Super-Admin mode. Sharing is always enabled.' : 'Share your premium cinematic invitation with guests'}
+                    </p>
+                    
+                    <div className="flex flex-col md:flex-row gap-4 items-center bg-white/5 p-4 rounded-3xl border border-white/10 backdrop-blur-sm">
+                       <div className="flex-1 w-full truncate font-mono text-[10px] text-neutral-300 px-4">
+                          {window.location.origin}/?id={config.weddingId}&mode=guest
+                       </div>
+                       <button 
+                         onClick={() => {
+                            const link = `${window.location.origin}/?id=${config.weddingId}&mode=guest`;
+                            navigator.clipboard.writeText(link);
+                            alert(`Guest Link Copied for ID: ${config.weddingId}! You can now share this uniquely.`);
+                         }}
+                         className="px-8 py-3 bg-gold text-white rounded-2xl font-bold text-xs uppercase tracking-widest hover:scale-105 transition-all flex items-center gap-2 w-full md:w-auto justify-center"
+                       >
+                          <Copy className="w-4 h-4" /> Copy Guest Link
+                       </button>
+                    </div>
+                  </>
+                ) : (
+                  <div className="text-center py-6">
+                    <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-500/50">
+                       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-red-500"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="m14.5 9-5 5"/><path d="m9.5 9 5 5"/></svg>
+                    </div>
+                    <h2 className="text-2xl font-serif mb-2">Sharing Disabled</h2>
+                    <p className="text-xs text-red-200 uppercase tracking-widest font-bold mb-4">Name mismatch detected</p>
+                    <p className="text-[10px] text-red-100/60 max-w-md mx-auto leading-relaxed mb-6">
+                      You have modified the primary names of this invitation. Sharing is restricted to the original license holder: <span className="text-white underline">{config.masterName1} & {config.masterName2}</span>. 
+                      Please revert the names to reactivate the sharing link.
+                    </p>
+                    <button 
+                      onClick={() => {
+                        updateConfig('couple.name1', config.masterName1);
+                        updateConfig('couple.name2', config.masterName2);
+                      }}
+                      className="px-6 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl text-[10px] font-bold uppercase tracking-widest border border-white/20 transition-all flex items-center gap-2 mx-auto"
+                    >
+                       <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                       Restore Original Names
+                    </button>
+                  </div>
+                )}
                 
                 <p className="mt-6 text-[10px] text-neutral-500 italic font-serif">
                    Note: The Guest Link will hide the builder dashboard and only show the elegant wedding invitation.
                 </p>
              </div>
           </section>
-        </div>
-
+        
         <motion.div 
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -528,6 +603,7 @@ const SetupDashboard = ({ config, updateConfig, onFinish }) => {
           </button>
         </motion.div>
       </div>
+    </div>
   );
 };
 
