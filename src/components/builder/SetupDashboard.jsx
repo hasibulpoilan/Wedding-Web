@@ -1,8 +1,8 @@
 import React, { useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Heart, Calendar, MapPin, ImageIcon, Sparkles, Send, Music, Upload, Gift, Share2, Copy, Check } from 'lucide-react';
+import { Heart, Calendar, MapPin, ImageIcon, Sparkles, Send, Music, Upload, Gift, Share2, Copy, Check, CloudSync, Save } from 'lucide-react';
 
-const SetupDashboard = ({ config, updateConfig, isAdmin, onFinish }) => {
+const SetupDashboard = ({ config, updateConfig, isAdmin, saveToCloud, isSyncing, onFinish }) => {
   const fileInputRef = useRef(null);
 
   const handleFileUpload = (e, path, isStory = false, index = 0) => {
@@ -17,7 +17,7 @@ const SetupDashboard = ({ config, updateConfig, isAdmin, onFinish }) => {
       const reader = new FileReader();
       reader.onloadend = () => {
         const result = reader.result;
-        
+
         if (file.type.startsWith('image/')) {
           // Compress Image
           const img = new Image();
@@ -45,7 +45,7 @@ const SetupDashboard = ({ config, updateConfig, isAdmin, onFinish }) => {
             const ctx = canvas.getContext('2d');
             ctx.drawImage(img, 0, 0, width, height);
             const compressedBase64 = canvas.toDataURL('image/jpeg', 0.7); // 70% quality jpeg
-            
+
             if (isStory) {
               const newStories = [...config.stories];
               newStories[index].image = compressedBase64;
@@ -66,8 +66,21 @@ const SetupDashboard = ({ config, updateConfig, isAdmin, onFinish }) => {
   return (
     <div className="min-h-screen bg-[#FDFBF7] p-8 md:p-16 overflow-y-auto">
       <div className="max-w-4xl mx-auto">
-        <header className="mb-16 text-center">
-          <motion.div 
+        <header className="mb-16 text-center relative">
+          <div className="absolute top-0 right-0 flex items-center gap-4">
+            <div className={`flex items-center gap-2 px-4 py-2 rounded-full text-[10px] font-bold uppercase tracking-widest ${isSyncing ? 'bg-gold/10 text-gold animate-pulse' : 'bg-green-50 text-green-600'}`}>
+              <CloudSync className="w-4 h-4" /> {isSyncing ? 'Syncing...' : 'Ready'}
+            </div>
+            <button
+              onClick={saveToCloud}
+              disabled={isSyncing}
+              className="flex items-center gap-2 px-6 py-2 bg-neutral-900 text-white rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-gold transition-all shadow-lg disabled:opacity-50"
+            >
+              <Save className="w-4 h-4" /> Save
+            </button>
+          </div>
+
+          <motion.div
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             className="w-20 h-20 bg-gold/10 rounded-full flex items-center justify-center mx-auto mb-6"
@@ -75,7 +88,7 @@ const SetupDashboard = ({ config, updateConfig, isAdmin, onFinish }) => {
             <Heart className="w-10 h-10 text-gold fill-gold" />
           </motion.div>
           <h1 className="text-4xl md:text-5xl font-serif text-deep-green mb-4 italic">Invitation Builder</h1>
-          <p className="text-neutral-500 font-serif tracking-widest uppercase text-xs">Fill in your details to create magic</p>
+          <p className="text-neutral-500 font-serif tracking-widest uppercase text-xs">Manage your digital wedding in the cloud</p>
         </header>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
@@ -89,8 +102,8 @@ const SetupDashboard = ({ config, updateConfig, isAdmin, onFinish }) => {
                 <label className="block text-[10px] uppercase tracking-widest text-neutral-400 mb-2 font-bold ml-1">Unique Wedding ID (URL Slug)</label>
                 <div className="flex items-center gap-2">
                   <span className="text-[10px] text-neutral-300 font-mono">/invite?id=</span>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     value={config.weddingId || ''}
                     onChange={(e) => updateConfig('weddingId', e.target.value.toLowerCase().replace(/\s+/g, '-'))}
                     className="flex-1 p-4 bg-neutral-50 border border-neutral-100 rounded-2xl focus:ring-2 focus:ring-gold/20 outline-none transition-all font-mono text-sm"
@@ -106,8 +119,8 @@ const SetupDashboard = ({ config, updateConfig, isAdmin, onFinish }) => {
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-[8px] uppercase tracking-widest text-neutral-400 mb-1 font-bold">Master Name 1</label>
-                      <input 
-                        type="text" 
+                      <input
+                        type="text"
                         value={config.masterName1}
                         onChange={(e) => updateConfig('masterName1', e.target.value)}
                         className="w-full p-2 bg-white border border-gold/20 rounded-xl text-xs outline-none focus:ring-1 focus:ring-gold"
@@ -115,8 +128,8 @@ const SetupDashboard = ({ config, updateConfig, isAdmin, onFinish }) => {
                     </div>
                     <div>
                       <label className="block text-[8px] uppercase tracking-widest text-neutral-400 mb-1 font-bold">Master Name 2</label>
-                      <input 
-                        type="text" 
+                      <input
+                        type="text"
                         value={config.masterName2}
                         onChange={(e) => updateConfig('masterName2', e.target.value)}
                         className="w-full p-2 bg-white border border-gold/20 rounded-xl text-xs outline-none focus:ring-1 focus:ring-gold"
@@ -128,39 +141,39 @@ const SetupDashboard = ({ config, updateConfig, isAdmin, onFinish }) => {
               )}
 
               <div className="pt-4 grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-[10px] uppercase tracking-widest text-neutral-400 mb-2 font-bold ml-1">Person 1 Name</label>
-                <input 
-                  type="text" 
-                  value={config.couple.name1}
-                  onChange={(e) => updateConfig('couple.name1', e.target.value)}
-                  className="w-full p-4 bg-neutral-50 border border-neutral-100 rounded-2xl focus:ring-2 focus:ring-gold/20 outline-none transition-all font-serif"
-                  placeholder="e.g. Tanmay"
-                />
-              </div>
-              <div>
-                <label className="block text-[10px] uppercase tracking-widest text-neutral-400 mb-2 font-bold ml-1">Person 2 Name</label>
-                <input 
-                  type="text" 
-                  value={config.couple.name2}
-                  onChange={(e) => updateConfig('couple.name2', e.target.value)}
-                  className="w-full p-4 bg-neutral-50 border border-neutral-100 rounded-2xl focus:ring-2 focus:ring-gold/20 outline-none transition-all font-serif"
-                  placeholder="e.g. Tanya"
-                />
-              </div>
-              <div>
-                <label className="block text-[10px] uppercase tracking-widest text-neutral-400 mb-2 font-bold ml-1">Initials (For Wax Seal)</label>
-                <input 
-                  type="text" 
-                  value={config.couple.initials}
-                  onChange={(e) => updateConfig('couple.initials', e.target.value)}
-                  className="w-full p-4 bg-neutral-50 border border-neutral-100 rounded-2xl focus:ring-2 focus:ring-gold/20 outline-none transition-all font-serif"
-                  placeholder="e.g. T&T"
-                />
+                <div>
+                  <label className="block text-[10px] uppercase tracking-widest text-neutral-400 mb-2 font-bold ml-1">Person 1 Name</label>
+                  <input
+                    type="text"
+                    value={config.couple.name1}
+                    onChange={(e) => updateConfig('couple.name1', e.target.value)}
+                    className="w-full p-4 bg-neutral-50 border border-neutral-100 rounded-2xl focus:ring-2 focus:ring-gold/20 outline-none transition-all font-serif"
+                    placeholder="e.g. Tanmay"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] uppercase tracking-widest text-neutral-400 mb-2 font-bold ml-1">Person 2 Name</label>
+                  <input
+                    type="text"
+                    value={config.couple.name2}
+                    onChange={(e) => updateConfig('couple.name2', e.target.value)}
+                    className="w-full p-4 bg-neutral-50 border border-neutral-100 rounded-2xl focus:ring-2 focus:ring-gold/20 outline-none transition-all font-serif"
+                    placeholder="e.g. Tanya"
+                  />
+                </div>
+                <div>
+                  <label className="block text-[10px] uppercase tracking-widest text-neutral-400 mb-2 font-bold ml-1">Initials (For Wax Seal)</label>
+                  <input
+                    type="text"
+                    value={config.couple.initials}
+                    onChange={(e) => updateConfig('couple.initials', e.target.value)}
+                    className="w-full p-4 bg-neutral-50 border border-neutral-100 rounded-2xl focus:ring-2 focus:ring-gold/20 outline-none transition-all font-serif"
+                    placeholder="e.g. T&T"
+                  />
+                </div>
               </div>
             </div>
-          </div>
-        </section>
+          </section>
 
           {/* Section 2: Date & Venue */}
           <section className="space-y-6 bg-white p-8 rounded-[2rem] shadow-sm border border-gold/5">
@@ -170,8 +183,8 @@ const SetupDashboard = ({ config, updateConfig, isAdmin, onFinish }) => {
             <div className="space-y-4">
               <div>
                 <label className="block text-[10px] uppercase tracking-widest text-neutral-400 mb-2 font-bold ml-1">Wedding Date</label>
-                <input 
-                  type="date" 
+                <input
+                  type="date"
                   value={config.date}
                   onChange={(e) => updateConfig('date', e.target.value)}
                   className="w-full p-4 bg-neutral-50 border border-neutral-100 rounded-2xl focus:ring-2 focus:ring-gold/20 outline-none transition-all font-serif"
@@ -179,7 +192,7 @@ const SetupDashboard = ({ config, updateConfig, isAdmin, onFinish }) => {
               </div>
               <div>
                 <label className="block text-[10px] uppercase tracking-widest text-neutral-400 mb-2 font-bold ml-1">Main Venue Address</label>
-                <textarea 
+                <textarea
                   value={config.venue}
                   onChange={(e) => updateConfig('venue', e.target.value)}
                   className="w-full p-4 bg-neutral-50 border border-neutral-100 rounded-2xl focus:ring-2 focus:ring-gold/20 outline-none transition-all font-serif h-32"
@@ -200,17 +213,17 @@ const SetupDashboard = ({ config, updateConfig, isAdmin, onFinish }) => {
                   <div className="aspect-square bg-neutral-200 rounded-xl mb-4 overflow-hidden shadow-inner group relative">
                     <img src={story.image} alt="Preview" className="w-full h-full object-cover" />
                     <label className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
-                       <Upload className="text-white w-8 h-8" />
-                       <input 
-                        type="file" 
-                        className="hidden" 
+                      <Upload className="text-white w-8 h-8" />
+                      <input
+                        type="file"
+                        className="hidden"
                         accept="image/*"
                         onChange={(e) => handleFileUpload(e, '', true, idx)}
-                       />
+                      />
                     </label>
                   </div>
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     value={story.image}
                     onChange={(e) => {
                       const newStories = [...config.stories];
@@ -220,8 +233,8 @@ const SetupDashboard = ({ config, updateConfig, isAdmin, onFinish }) => {
                     className="w-full p-3 bg-white border border-neutral-100 rounded-xl text-xs outline-none"
                     placeholder="Or paste URL here..."
                   />
-                  <input 
-                    type="text" 
+                  <input
+                    type="text"
                     value={story.caption}
                     onChange={(e) => {
                       const newStories = [...config.stories];
@@ -238,32 +251,32 @@ const SetupDashboard = ({ config, updateConfig, isAdmin, onFinish }) => {
 
           {/* Section 4: Music Selection */}
           <section className="col-span-1 md:col-span-2 bg-white p-8 rounded-[2rem] shadow-sm border border-gold/5">
-             <h2 className="flex items-center gap-3 text-lg font-serif text-deep-green border-b border-gold/10 pb-4 mb-6">
+            <h2 className="flex items-center gap-3 text-lg font-serif text-deep-green border-b border-gold/10 pb-4 mb-6">
               <Music className="w-5 h-5 text-gold" /> Background Music
             </h2>
             <div className="flex flex-col md:flex-row gap-6 items-center">
-               <div className="flex-1 w-full">
-                  <label className="block text-[10px] uppercase tracking-widest text-neutral-400 mb-2 font-bold ml-1">Music Source (URL or File)</label>
-                  <input 
-                    type="text" 
-                    value={config.musicUrl || ''}
-                    onChange={(e) => updateConfig('musicUrl', e.target.value)}
-                    className="w-full p-4 bg-neutral-50 border border-neutral-100 rounded-2xl focus:ring-2 focus:ring-gold/20 outline-none transition-all font-serif"
-                    placeholder="https://...mp3"
+              <div className="flex-1 w-full">
+                <label className="block text-[10px] uppercase tracking-widest text-neutral-400 mb-2 font-bold ml-1">Music Source (URL or File)</label>
+                <input
+                  type="text"
+                  value={config.musicUrl || ''}
+                  onChange={(e) => updateConfig('musicUrl', e.target.value)}
+                  className="w-full p-4 bg-neutral-50 border border-neutral-100 rounded-2xl focus:ring-2 focus:ring-gold/20 outline-none transition-all font-serif"
+                  placeholder="https://...mp3"
+                />
+              </div>
+              <div className="flex flex-col items-center gap-2">
+                <span className="text-[10px] text-neutral-300 font-bold uppercase">OR</span>
+                <label className="px-6 py-4 bg-gold/10 text-gold rounded-2xl cursor-pointer hover:bg-gold/20 transition-all flex items-center gap-2 font-bold text-xs">
+                  <Upload className="w-4 h-4" /> Upload MP3
+                  <input
+                    type="file"
+                    className="hidden"
+                    accept="audio/*"
+                    onChange={(e) => handleFileUpload(e, 'musicUrl')}
                   />
-               </div>
-               <div className="flex flex-col items-center gap-2">
-                  <span className="text-[10px] text-neutral-300 font-bold uppercase">OR</span>
-                  <label className="px-6 py-4 bg-gold/10 text-gold rounded-2xl cursor-pointer hover:bg-gold/20 transition-all flex items-center gap-2 font-bold text-xs">
-                     <Upload className="w-4 h-4" /> Upload MP3
-                     <input 
-                        type="file" 
-                        className="hidden" 
-                        accept="audio/*"
-                        onChange={(e) => handleFileUpload(e, 'musicUrl')}
-                      />
-                  </label>
-               </div>
+                </label>
+              </div>
             </div>
           </section>
           {/* Section 5: Events (Programs) */}
@@ -272,7 +285,7 @@ const SetupDashboard = ({ config, updateConfig, isAdmin, onFinish }) => {
               <h2 className="flex items-center gap-3 text-lg font-serif text-deep-green">
                 <Sparkles className="w-5 h-5 text-gold" /> Wedding Programs & Locations
               </h2>
-              <button 
+              <button
                 onClick={() => {
                   const newEvents = [...config.events];
                   newEvents.push({
@@ -292,23 +305,23 @@ const SetupDashboard = ({ config, updateConfig, isAdmin, onFinish }) => {
                 + Add Program
               </button>
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {config.events.map((event, idx) => (
                 <div key={event.id} className="p-6 bg-neutral-50 rounded-[1.5rem] border border-neutral-100 space-y-4 relative group">
-                  <button 
+                  <button
                     onClick={() => {
                       const newEvents = config.events.filter((_, i) => i !== idx);
                       updateConfig('events', newEvents);
                     }}
                     className="absolute top-4 right-4 p-2 bg-red-50 text-red-400 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500 hover:text-white"
                   >
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18" /><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" /><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" /><line x1="10" x2="10" y1="11" y2="17" /><line x1="14" x2="14" y1="11" y2="17" /></svg>
                   </button>
 
                   <div className="flex justify-between items-center">
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       value={event.title}
                       onChange={(e) => {
                         const newEvents = [...config.events];
@@ -320,8 +333,8 @@ const SetupDashboard = ({ config, updateConfig, isAdmin, onFinish }) => {
                     />
                     <div className="flex items-center gap-2">
                       <span className="text-[10px] uppercase tracking-widest text-neutral-400 font-bold">Enabled</span>
-                      <input 
-                        type="checkbox" 
+                      <input
+                        type="checkbox"
                         checked={event.enabled}
                         onChange={(e) => {
                           const newEvents = [...config.events];
@@ -332,12 +345,12 @@ const SetupDashboard = ({ config, updateConfig, isAdmin, onFinish }) => {
                       />
                     </div>
                   </div>
-                  
+
                   <div className="grid grid-cols-2 gap-4">
                     <div>
                       <label className="block text-[10px] uppercase tracking-widest text-neutral-400 mb-1 font-bold">Time</label>
-                      <input 
-                        type="text" 
+                      <input
+                        type="text"
                         value={event.time}
                         onChange={(e) => {
                           const newEvents = [...config.events];
@@ -350,8 +363,8 @@ const SetupDashboard = ({ config, updateConfig, isAdmin, onFinish }) => {
                     </div>
                     <div>
                       <label className="block text-[10px] uppercase tracking-widest text-neutral-400 mb-1 font-bold">Date</label>
-                      <input 
-                        type="text" 
+                      <input
+                        type="text"
                         value={event.date}
                         onChange={(e) => {
                           const newEvents = [...config.events];
@@ -366,8 +379,8 @@ const SetupDashboard = ({ config, updateConfig, isAdmin, onFinish }) => {
 
                   <div>
                     <label className="block text-[10px] uppercase tracking-widest text-neutral-400 mb-1 font-bold">Venue Name</label>
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       value={event.venueName || ''}
                       onChange={(e) => {
                         const newEvents = [...config.events];
@@ -383,8 +396,8 @@ const SetupDashboard = ({ config, updateConfig, isAdmin, onFinish }) => {
                     <label className="block text-[10px] uppercase tracking-widest text-neutral-400 mb-1 font-bold flex items-center gap-1">
                       <MapPin className="w-3 h-3" /> Google Maps URL
                     </label>
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       value={event.venueUrl || ''}
                       onChange={(e) => {
                         const newEvents = [...config.events];
@@ -409,8 +422,8 @@ const SetupDashboard = ({ config, updateConfig, isAdmin, onFinish }) => {
               {(config.funds || []).map((fund, idx) => (
                 <div key={fund.id} className="p-6 bg-neutral-50 rounded-[1.5rem] border border-neutral-100 space-y-4">
                   <div className="flex justify-between items-center">
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       value={fund.title}
                       onChange={(e) => {
                         const newFunds = [...config.funds];
@@ -419,8 +432,8 @@ const SetupDashboard = ({ config, updateConfig, isAdmin, onFinish }) => {
                       }}
                       className="font-serif text-deep-green font-bold text-sm bg-transparent border-none outline-none focus:ring-0 p-0"
                     />
-                    <input 
-                      type="checkbox" 
+                    <input
+                      type="checkbox"
                       checked={fund.enabled}
                       onChange={(e) => {
                         const newFunds = [...config.funds];
@@ -430,7 +443,7 @@ const SetupDashboard = ({ config, updateConfig, isAdmin, onFinish }) => {
                       className="accent-gold w-4 h-4"
                     />
                   </div>
-                  <textarea 
+                  <textarea
                     value={fund.description}
                     onChange={(e) => {
                       const newFunds = [...config.funds];
@@ -442,159 +455,158 @@ const SetupDashboard = ({ config, updateConfig, isAdmin, onFinish }) => {
                 </div>
               ))}
             </div>
-            
+
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6 border-t border-gold/5">
-               <div>
-                  <label className="block text-[10px] uppercase tracking-widest text-neutral-400 mb-2 font-bold ml-1">UPI ID for Contributions</label>
-                  <input 
-                    type="text" 
-                    value={config.couple.upi || ''}
-                    onChange={(e) => updateConfig('couple.upi', e.target.value)}
-                    className="w-full p-4 bg-neutral-50 border border-neutral-100 rounded-2xl focus:ring-2 focus:ring-gold/20 outline-none transition-all font-serif"
-                    placeholder="e.g. name@upi"
-                  />
-               </div>
-               <div>
-                  <label className="block text-[10px] uppercase tracking-widest text-neutral-400 mb-2 font-bold ml-1">Account No.</label>
-                  <input 
-                    type="text" 
-                    value={config.couple.accountNo || ''}
-                    onChange={(e) => updateConfig('couple.accountNo', e.target.value)}
-                    className="w-full p-4 bg-neutral-50 border border-neutral-100 rounded-2xl focus:ring-2 focus:ring-gold/20 outline-none transition-all font-serif"
-                    placeholder="Bank details..."
-                  />
-               </div>
-               <div>
-                  <label className="block text-[10px] uppercase tracking-widest text-neutral-400 mb-2 font-bold ml-1">IFSC Code</label>
-                  <input 
-                    type="text" 
-                    value={config.couple.ifsc || ''}
-                    onChange={(e) => updateConfig('couple.ifsc', e.target.value)}
-                    className="w-full p-4 bg-neutral-50 border border-neutral-100 rounded-2xl focus:ring-2 focus:ring-gold/20 outline-none transition-all font-serif"
-                    placeholder="IFSC..."
-                  />
-               </div>
+              <div>
+                <label className="block text-[10px] uppercase tracking-widest text-neutral-400 mb-2 font-bold ml-1">UPI ID for Contributions</label>
+                <input
+                  type="text"
+                  value={config.couple.upi || ''}
+                  onChange={(e) => updateConfig('couple.upi', e.target.value)}
+                  className="w-full p-4 bg-neutral-50 border border-neutral-100 rounded-2xl focus:ring-2 focus:ring-gold/20 outline-none transition-all font-serif"
+                  placeholder="e.g. name@upi"
+                />
+              </div>
+              <div>
+                <label className="block text-[10px] uppercase tracking-widest text-neutral-400 mb-2 font-bold ml-1">Account No.</label>
+                <input
+                  type="text"
+                  value={config.couple.accountNo || ''}
+                  onChange={(e) => updateConfig('couple.accountNo', e.target.value)}
+                  className="w-full p-4 bg-neutral-50 border border-neutral-100 rounded-2xl focus:ring-2 focus:ring-gold/20 outline-none transition-all font-serif"
+                  placeholder="Bank details..."
+                />
+              </div>
+              <div>
+                <label className="block text-[10px] uppercase tracking-widest text-neutral-400 mb-2 font-bold ml-1">IFSC Code</label>
+                <input
+                  type="text"
+                  value={config.couple.ifsc || ''}
+                  onChange={(e) => updateConfig('couple.ifsc', e.target.value)}
+                  className="w-full p-4 bg-neutral-50 border border-neutral-100 rounded-2xl focus:ring-2 focus:ring-gold/20 outline-none transition-all font-serif"
+                  placeholder="IFSC..."
+                />
+              </div>
             </div>
           </section>
 
           {/* Section 7: Invitation Tiers (Monetization Strategy) */}
           <section className="col-span-1 md:col-span-2 space-y-8 bg-white p-10 rounded-[2.5rem] shadow-xl border-2 border-gold/20 relative overflow-hidden">
-             <div className="absolute top-0 right-0 p-4 bg-gold text-white text-[10px] font-bold uppercase tracking-widest rounded-bl-2xl">
-                Special Offer
-             </div>
-             
-             <div className="text-center mb-10">
-                <h2 className="text-3xl font-serif text-deep-green mb-2 italic">Invitation Tier</h2>
-                <p className="text-xs text-neutral-400 uppercase tracking-widest font-bold">Enjoy all premium features at no cost!</p>
-             </div>
+            <div className="absolute top-0 right-0 p-4 bg-gold text-white text-[10px] font-bold uppercase tracking-widest rounded-bl-2xl">
+              Special Offer
+            </div>
 
-             <div className="grid grid-cols-1 md:grid-cols-1 gap-6 max-w-2xl mx-auto">
-                <motion.div
-                  whileHover={{ y: -5 }}
-                  className="p-8 rounded-[2.5rem] border-2 border-gold bg-gold/5 shadow-xl shadow-gold/10 relative"
-                >
-                  <div className="flex justify-between items-start mb-6">
-                     <span className="text-[12px] font-bold uppercase tracking-widest px-4 py-2 rounded-full bg-gold text-white">
-                        Free All-Access Pass
-                     </span>
-                     <Sparkles className="w-6 h-6 text-gold animate-pulse" />
-                  </div>
-                  <h3 className="text-2xl font-serif text-deep-green mb-3">Premium Cinematic Experience</h3>
-                  <p className="text-[11px] text-neutral-500 mb-8 leading-relaxed font-serif italic">
-                    For a limited time, all premium luxury features are completely unlocked for your invitation.
-                  </p>
-                  
-                  <div className="grid grid-cols-2 gap-4">
-                     {[
-                       'Interactive Envelope', 
-                       'Falling Petals', 
-                       'Personalized Video Intro', 
-                       '3D Mandap Reveal',
-                       'Interactive Guestbook',
-                       'Gift Registry',
-                       'Vendor Referrals',
-                       'Music Player'
-                     ].map(f => (
-                       <li key={f} className="text-[10px] text-deep-green/80 flex items-center gap-3 font-bold uppercase tracking-widest">
-                          <div className="w-1.5 h-1.5 bg-gold rounded-full" /> {f}
-                       </li>
-                     ))}
-                  </div>
-                </motion.div>
-             </div>
+            <div className="text-center mb-10">
+              <h2 className="text-3xl font-serif text-deep-green mb-2 italic">Invitation Tier</h2>
+              <p className="text-xs text-neutral-400 uppercase tracking-widest font-bold">Enjoy all premium features at no cost!</p>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-1 gap-6 max-w-2xl mx-auto">
+              <motion.div
+                whileHover={{ y: -5 }}
+                className="p-8 rounded-[2.5rem] border-2 border-gold bg-gold/5 shadow-xl shadow-gold/10 relative"
+              >
+                <div className="flex justify-between items-start mb-6">
+                  <span className="text-[12px] font-bold uppercase tracking-widest px-4 py-2 rounded-full bg-gold text-white">
+                    Free All-Access Pass
+                  </span>
+                  <Sparkles className="w-6 h-6 text-gold animate-pulse" />
+                </div>
+                <h3 className="text-2xl font-serif text-deep-green mb-3">Premium Cinematic Experience</h3>
+                <p className="text-[11px] text-neutral-500 mb-8 leading-relaxed font-serif italic">
+                  For a limited time, all premium luxury features are completely unlocked for your invitation.
+                </p>
+
+                <div className="grid grid-cols-2 gap-4">
+                  {[
+                    'Interactive Envelope',
+                    'Falling Petals',
+                    'Personalized Video Intro',
+                    '3D Mandap Reveal',
+                    'Interactive Guestbook',
+                    'Gift Registry',
+                    'Vendor Referrals',
+                    'Music Player'
+                  ].map(f => (
+                    <li key={f} className="text-[10px] text-deep-green/80 flex items-center gap-3 font-bold uppercase tracking-widest">
+                      <div className="w-1.5 h-1.5 bg-gold rounded-full" /> {f}
+                    </li>
+                  ))}
+                </div>
+              </motion.div>
+            </div>
           </section>
         </div>
 
-          {/* Section 8: Share & Publish */}
-          <section className={`col-span-1 md:col-span-2 space-y-8 p-10 rounded-[2.5rem] shadow-2xl relative overflow-hidden text-white transition-all duration-500 ${
-            (isAdmin || (config.couple.name1 === config.masterName1 && config.couple.name2 === config.masterName2)) 
-            ? 'bg-neutral-900 border-none' 
-            : 'bg-red-900/90 border-2 border-red-500 backdrop-blur-md'
+        {/* Section 8: Share & Publish */}
+        <section className={`col-span-1 md:col-span-2 space-y-8 p-10 rounded-[2.5rem] shadow-2xl relative overflow-hidden text-white transition-all duration-500 ${(isAdmin || (config.couple.name1 === config.masterName1 && config.couple.name2 === config.masterName2))
+          ? 'bg-neutral-900 border-none'
+          : 'bg-red-900/90 border-2 border-red-500 backdrop-blur-md'
           }`}>
-             <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
-                <Share2 className="w-32 h-32" />
-             </div>
-             
-             <div className="relative z-10">
-                {(isAdmin || (config.couple.name1 === config.masterName1 && config.couple.name2 === config.masterName2)) ? (
-                  <>
-                    <h2 className="text-3xl font-serif mb-2 italic">{isAdmin ? 'Admin: Share Invitation' : 'Ready to Invite?'}</h2>
-                    <p className="text-xs text-neutral-400 uppercase tracking-widest font-bold mb-8">
-                       {isAdmin ? 'You are in Super-Admin mode. Sharing is always enabled.' : 'Share your premium cinematic invitation with guests'}
-                    </p>
-                    
-                    <div className="flex flex-col md:flex-row gap-4 items-center bg-white/5 p-4 rounded-3xl border border-white/10 backdrop-blur-sm">
-                       <div className="flex-1 w-full truncate font-mono text-[10px] text-neutral-300 px-4">
-                          {window.location.origin}/?id={config.weddingId}&mode=guest
-                       </div>
-                       <button 
-                         onClick={() => {
-                            const link = `${window.location.origin}/?id=${config.weddingId}&mode=guest`;
-                            navigator.clipboard.writeText(link);
-                            alert(`Guest Link Copied for ID: ${config.weddingId}! You can now share this uniquely.`);
-                         }}
-                         className="px-8 py-3 bg-gold text-white rounded-2xl font-bold text-xs uppercase tracking-widest hover:scale-105 transition-all flex items-center gap-2 w-full md:w-auto justify-center"
-                       >
-                          <Copy className="w-4 h-4" /> Copy Guest Link
-                       </button>
-                    </div>
-                  </>
-                ) : (
-                  <div className="text-center py-6">
-                    <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-500/50">
-                       <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-red-500"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10"/><path d="m14.5 9-5 5"/><path d="m9.5 9 5 5"/></svg>
-                    </div>
-                    <h2 className="text-2xl font-serif mb-2">Sharing Disabled</h2>
-                    <p className="text-xs text-red-200 uppercase tracking-widest font-bold mb-4">Name mismatch detected</p>
-                    <p className="text-[10px] text-red-100/60 max-w-md mx-auto leading-relaxed mb-6">
-                      You have modified the primary names of this invitation. Sharing is restricted to the original license holder: <span className="text-white underline">{config.masterName1} & {config.masterName2}</span>. 
-                      Please revert the names to reactivate the sharing link.
-                    </p>
-                    <button 
-                      onClick={() => {
-                        updateConfig('couple.name1', config.masterName1);
-                        updateConfig('couple.name2', config.masterName2);
-                      }}
-                      className="px-6 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl text-[10px] font-bold uppercase tracking-widest border border-white/20 transition-all flex items-center gap-2 mx-auto"
-                    >
-                       <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-                       Restore Original Names
-                    </button>
-                  </div>
-                )}
-                
-                <p className="mt-6 text-[10px] text-neutral-500 italic font-serif">
-                   Note: The Guest Link will hide the builder dashboard and only show the elegant wedding invitation.
+          <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
+            <Share2 className="w-32 h-32" />
+          </div>
+
+          <div className="relative z-10">
+            {(isAdmin || (config.couple.name1 === config.masterName1 && config.couple.name2 === config.masterName2)) ? (
+              <>
+                <h2 className="text-3xl font-serif mb-2 italic">{isAdmin ? 'Admin: Share Invitation' : 'Ready to Invite?'}</h2>
+                <p className="text-xs text-neutral-400 uppercase tracking-widest font-bold mb-8">
+                  {isAdmin ? 'You are in Super-Admin mode. Sharing is always enabled.' : 'Share your premium cinematic invitation with guests'}
                 </p>
-             </div>
-          </section>
-        
-        <motion.div 
+
+                <div className="flex flex-col md:flex-row gap-4 items-center bg-white/5 p-4 rounded-3xl border border-white/10 backdrop-blur-sm">
+                  <div className="flex-1 w-full truncate font-mono text-[10px] text-neutral-300 px-4">
+                    {window.location.origin}/?id={config.weddingId}&mode=guest
+                  </div>
+                  <button
+                    onClick={() => {
+                      const link = `${window.location.origin}/?id=${config.weddingId}&mode=guest`;
+                      navigator.clipboard.writeText(link);
+                      alert(`Guest Link Copied for ID: ${config.weddingId}! You can now share this uniquely.`);
+                    }}
+                    className="px-8 py-3 bg-gold text-white rounded-2xl font-bold text-xs uppercase tracking-widest hover:scale-105 transition-all flex items-center gap-2 w-full md:w-auto justify-center"
+                  >
+                    <Copy className="w-4 h-4" /> Copy Guest Link
+                  </button>
+                </div>
+              </>
+            ) : (
+              <div className="text-center py-6">
+                <div className="w-16 h-16 bg-red-500/20 rounded-full flex items-center justify-center mx-auto mb-4 border border-red-500/50">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-red-500"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10" /><path d="m14.5 9-5 5" /><path d="m9.5 9 5 5" /></svg>
+                </div>
+                <h2 className="text-2xl font-serif mb-2">Sharing Disabled</h2>
+                <p className="text-xs text-red-200 uppercase tracking-widest font-bold mb-4">Name mismatch detected</p>
+                <p className="text-[10px] text-red-100/60 max-w-md mx-auto leading-relaxed mb-6">
+                  You have modified the primary names of this invitation. Sharing is restricted to the original license holder: <span className="text-white underline">{config.masterName1} & {config.masterName2}</span>.
+                  Please revert the names to reactivate the sharing link.
+                </p>
+                <button
+                  onClick={() => {
+                    updateConfig('couple.name1', config.masterName1);
+                    updateConfig('couple.name2', config.masterName2);
+                  }}
+                  className="px-6 py-2 bg-white/10 hover:bg-white/20 text-white rounded-xl text-[10px] font-bold uppercase tracking-widest border border-white/20 transition-all flex items-center gap-2 mx-auto"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" /></svg>
+                  Restore Original Names
+                </button>
+              </div>
+            )}
+
+            <p className="mt-6 text-[10px] text-neutral-500 italic font-serif">
+              Note: The Guest Link will hide the builder dashboard and only show the elegant wedding invitation.
+            </p>
+          </div>
+        </section>
+
+        <motion.div
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           className="mt-16 text-center"
         >
-          <button 
+          <button
             onClick={onFinish}
             className="px-12 py-5 bg-neutral-900 text-cream rounded-[2rem] font-serif text-lg tracking-widest hover:bg-gold transition-all duration-500 shadow-2xl flex items-center justify-center gap-4 mx-auto group border border-white/10"
           >

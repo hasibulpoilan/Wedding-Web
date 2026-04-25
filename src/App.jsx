@@ -3,7 +3,8 @@ import SetupDashboard from './components/builder/SetupDashboard';
 import MainInvitation from './components/invitation/MainInvitation';
 import MarketingPreview from './components/builder/MarketingPreview';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Rocket } from 'lucide-react';
+import { Rocket, CloudSync, Save } from 'lucide-react';
+import { supabase } from './lib/supabase';
 
 const initialConfig = {
   weddingId: "tanmay-tanya",
@@ -69,13 +70,58 @@ function App() {
   
   const [showMarketing, setShowMarketing] = useState(false);
 
+  const [isSyncing, setIsSyncing] = useState(false);
+
+  // Load from Supabase on start
+  React.useEffect(() => {
+    const loadFromCloud = async () => {
+      const id = queryParams.get('id') || config.weddingId;
+      if (!id) return;
+
+      setIsSyncing(true);
+      const { data, error } = await supabase
+        .from('weddings')
+        .select('*')
+        .eq('wedding_id', id)
+        .single();
+
+      if (data && !error) {
+        setConfig(data.config);
+        console.log('Cloud data loaded successfully');
+      } else if (error && error.code !== 'PGRST116') {
+        console.error('Error loading from cloud:', error.message);
+      }
+      setIsSyncing(false);
+    };
+
+    loadFromCloud();
+  }, []);
+
+  const saveToCloud = async () => {
+    setIsSyncing(true);
+    const { error } = await supabase
+      .from('weddings')
+      .upsert({ 
+        wedding_id: config.weddingId, 
+        config: config,
+        master_name1: config.masterName1,
+        master_name2: config.masterName2
+      }, { onConflict: 'wedding_id' });
+
+    if (error) {
+      alert('Error saving to cloud: ' + error.message);
+    } else {
+      alert('Wedding data synced to PostgreSQL successfully!');
+    }
+    setIsSyncing(false);
+  };
+
   React.useEffect(() => {
     try {
       localStorage.setItem('weddingConfig', JSON.stringify(config));
     } catch (e) {
       if (e.name === 'QuotaExceededError' || e.name === 'NS_ERROR_DOM_QUOTA_REACHED') {
         console.warn('Storage limit reached. Large images or music cannot be saved locally.');
-        // We still keep the current session state, but it won't persist on refresh
       }
     }
   }, [config]);
@@ -113,6 +159,8 @@ function App() {
               config={config} 
               updateConfig={updateConfig} 
               isAdmin={isAdmin}
+              saveToCloud={saveToCloud}
+              isSyncing={isSyncing}
               onFinish={() => setViewMode('invitation')} 
             />
             
