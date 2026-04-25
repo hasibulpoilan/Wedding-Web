@@ -22,6 +22,7 @@
   .font-pinyon { font-family: var(--font-pinyon); }
   .font-cursive { font-family: var(--font-cursive); }
   .font-serif { font-family: var(--font-serif); }
+  .font-playfair { font-family: var(--font-serif); }
 }
 
 /* Custom transitions and base styles */

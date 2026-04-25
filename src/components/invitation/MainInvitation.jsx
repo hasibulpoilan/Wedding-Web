@@ -10,9 +10,9 @@ import ScratchCard from './ScratchCard';
 import Petals from './Petals';
 import MusicPlayer from './MusicPlayer';
 import WishesWall from './WishesWall';
-import GiftRegistry from './GiftRegistry';
 import VideoIntro from './VideoIntro';
 import VendorReferrals from './VendorReferrals';
+import ContributionFunds from './ContributionFunds';
 
 const MainInvitation = ({ config }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -26,7 +26,6 @@ const MainInvitation = ({ config }) => {
 
   const handleIntroComplete = () => {
     setShowIntro(false);
-    // After intro, we still show the envelope for that tactile feel
   };
 
   return (
@@ -73,10 +72,9 @@ const MainInvitation = ({ config }) => {
 
           <OurStory stories={config.stories} />
           <Events events={config.events} />
-          {/* <VendorReferrals /> - Commented out as requested */}
           <Mandap isPlatinum={true} />
           
-          <GiftRegistry config={config} />
+          <ContributionFunds config={config} />
           
           <WishesWall />
           <RSVPForm config={config} />

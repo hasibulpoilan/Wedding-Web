@@ -9,7 +9,10 @@ const initialConfig = {
   couple: {
     name1: "Tanmay",
     name2: "Tanya",
-    initials: "T&T"
+    initials: "T&T",
+    upi: "wedding.joy@okaxis",
+    accountNo: "9876543210",
+    ifsc: "WJOY000123"
   },
   date: "2026-05-30",
   venue: "The Grand Palace, Udaipur",
@@ -23,6 +26,11 @@ const initialConfig = {
     { id: "sangeet", title: "Sangeet", time: "7:00 PM", date: "May 29", image: "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&q=80&w=800", enabled: true, venueName: "The Grand Palace, Udaipur", venueUrl: "" },
     { id: "wedding", title: "Wedding", time: "4:00 PM", date: "May 30", image: "https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?auto=format&fit=crop&q=80&w=800", enabled: true, venueName: "The Grand Palace, Udaipur", venueUrl: "" }
   ],
+  funds: [
+    { id: 1, title: "Honeymoon Fund", description: "Help us create memories on our first journey as a couple.", enabled: true },
+    { id: 2, title: "New Home Fund", description: "Contribute towards building our little nest together.", enabled: true },
+    { id: 3, title: "Romantic Dinner", description: "Treat us to a beautiful candlelit dinner.", enabled: true }
+  ],
   tier: 'gold' // 'basic', 'gold', 'platinum'
 };
 
@@ -31,14 +39,27 @@ function App() {
     const saved = localStorage.getItem('weddingConfig');
     if (saved) {
       try {
-        return JSON.parse(saved);
+        const parsed = JSON.parse(saved);
+        // Deep merge to ensure new fields like 'funds' exist
+        return {
+          ...initialConfig,
+          ...parsed,
+          couple: { ...initialConfig.couple, ...parsed.couple },
+          funds: parsed.funds || initialConfig.funds,
+          events: parsed.events || initialConfig.events,
+          stories: parsed.stories || initialConfig.stories
+        };
       } catch (e) {
         return initialConfig;
       }
     }
     return initialConfig;
   });
-  const [viewMode, setViewMode] = useState('setup'); // 'setup' or 'invitation'
+  const [viewMode, setViewMode] = useState(() => {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('mode') === 'guest' ? 'invitation' : 'setup';
+  });
+  const isGuest = new URLSearchParams(window.location.search).get('mode') === 'guest';
   const [showMarketing, setShowMarketing] = useState(false);
 
   React.useEffect(() => {
@@ -99,14 +120,16 @@ function App() {
           >
             <MainInvitation config={config} />
             
-            {/* Back to Edit Button */}
-            <motion.button
-              whileHover={{ scale: 1.1 }}
-              onClick={() => setViewMode('setup')}
-              className="fixed bottom-8 right-8 z-[200] w-12 h-12 bg-white rounded-full shadow-2xl flex items-center justify-center text-gold border border-gold/10 hover:bg-gold hover:text-white transition-colors"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
-            </motion.button>
+            {/* Back to Edit Button - Only for Owner */}
+            {!isGuest && (
+              <motion.button
+                whileHover={{ scale: 1.1 }}
+                onClick={() => setViewMode('setup')}
+                className="fixed bottom-8 right-8 z-[200] w-12 h-12 bg-white rounded-full shadow-2xl flex items-center justify-center text-gold border border-gold/10 hover:bg-gold hover:text-white transition-colors"
+              >
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
+              </motion.button>
+            )}
           </motion.div>
         )}
       </AnimatePresence>

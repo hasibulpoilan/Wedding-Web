@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Heart, Calendar, MapPin, ImageIcon, Sparkles, Send, Music, Upload, Gift } from 'lucide-react';
+import { Heart, Calendar, MapPin, ImageIcon, Sparkles, Send, Music, Upload, Gift, Share2, Copy, Check } from 'lucide-react';
 
 const SetupDashboard = ({ config, updateConfig, onFinish }) => {
   const fileInputRef = useRef(null);
@@ -8,14 +8,18 @@ const SetupDashboard = ({ config, updateConfig, onFinish }) => {
   const handleFileUpload = (e, path, isStory = false, index = 0) => {
     const file = e.target.files[0];
     if (file) {
-      const url = URL.createObjectURL(file);
-      if (isStory) {
-        const newStories = [...config.stories];
-        newStories[index].image = url;
-        updateConfig('stories', newStories);
-      } else {
-        updateConfig(path, url);
-      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64String = reader.result;
+        if (isStory) {
+          const newStories = [...config.stories];
+          newStories[index].image = base64String;
+          updateConfig('stories', newStories);
+        } else {
+          updateConfig(path, base64String);
+        }
+      };
+      reader.readAsDataURL(file);
     }
   };
 
@@ -180,14 +184,56 @@ const SetupDashboard = ({ config, updateConfig, onFinish }) => {
           </section>
           {/* Section 5: Events (Programs) */}
           <section className="col-span-1 md:col-span-2 space-y-6 bg-white p-8 rounded-[2rem] shadow-sm border border-gold/5">
-            <h2 className="flex items-center gap-3 text-lg font-serif text-deep-green border-b border-gold/10 pb-4">
-              <Sparkles className="w-5 h-5 text-gold" /> Wedding Programs & Locations
-            </h2>
+            <div className="flex justify-between items-center border-b border-gold/10 pb-4">
+              <h2 className="flex items-center gap-3 text-lg font-serif text-deep-green">
+                <Sparkles className="w-5 h-5 text-gold" /> Wedding Programs & Locations
+              </h2>
+              <button 
+                onClick={() => {
+                  const newEvents = [...config.events];
+                  newEvents.push({
+                    id: `event-${Date.now()}`,
+                    title: "New Program",
+                    time: "00:00 AM",
+                    date: "May 30",
+                    image: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&q=80&w=800",
+                    enabled: true,
+                    venueName: "",
+                    venueUrl: ""
+                  });
+                  updateConfig('events', newEvents);
+                }}
+                className="px-4 py-2 bg-gold/10 text-gold rounded-xl hover:bg-gold hover:text-white transition-all text-[10px] font-bold uppercase tracking-widest flex items-center gap-2"
+              >
+                + Add Program
+              </button>
+            </div>
+            
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               {config.events.map((event, idx) => (
-                <div key={event.id} className="p-6 bg-neutral-50 rounded-[1.5rem] border border-neutral-100 space-y-4">
+                <div key={event.id} className="p-6 bg-neutral-50 rounded-[1.5rem] border border-neutral-100 space-y-4 relative group">
+                  <button 
+                    onClick={() => {
+                      const newEvents = config.events.filter((_, i) => i !== idx);
+                      updateConfig('events', newEvents);
+                    }}
+                    className="absolute top-4 right-4 p-2 bg-red-50 text-red-400 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500 hover:text-white"
+                  >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+                  </button>
+
                   <div className="flex justify-between items-center">
-                    <h3 className="font-serif text-deep-green font-bold text-lg">{event.title}</h3>
+                    <input 
+                      type="text" 
+                      value={event.title}
+                      onChange={(e) => {
+                        const newEvents = [...config.events];
+                        newEvents[idx].title = e.target.value;
+                        updateConfig('events', newEvents);
+                      }}
+                      className="font-serif text-deep-green font-bold text-lg bg-transparent border-none outline-none focus:ring-0 w-3/4 p-0"
+                      placeholder="Event Title"
+                    />
                     <div className="flex items-center gap-2">
                       <span className="text-[10px] uppercase tracking-widest text-neutral-400 font-bold">Enabled</span>
                       <input 
@@ -270,14 +316,52 @@ const SetupDashboard = ({ config, updateConfig, onFinish }) => {
             </div>
           </section>
 
-          {/* Section 6: Gift Registry & Payments */}
+          {/* Section 6: Contribution Funds (Gift Registry) */}
           <section className="col-span-1 md:col-span-2 space-y-6 bg-white p-8 rounded-[2rem] shadow-sm border border-gold/5">
             <h2 className="flex items-center gap-3 text-lg font-serif text-deep-green border-b border-gold/10 pb-4">
-              <Gift className="w-5 h-5 text-gold" /> Gift Registry Details (SaaS Revenue)
+              <Gift className="w-5 h-5 text-gold" /> Contribution Funds
             </h2>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {(config.funds || []).map((fund, idx) => (
+                <div key={fund.id} className="p-6 bg-neutral-50 rounded-[1.5rem] border border-neutral-100 space-y-4">
+                  <div className="flex justify-between items-center">
+                    <input 
+                      type="text" 
+                      value={fund.title}
+                      onChange={(e) => {
+                        const newFunds = [...config.funds];
+                        newFunds[idx].title = e.target.value;
+                        updateConfig('funds', newFunds);
+                      }}
+                      className="font-serif text-deep-green font-bold text-sm bg-transparent border-none outline-none focus:ring-0 p-0"
+                    />
+                    <input 
+                      type="checkbox" 
+                      checked={fund.enabled}
+                      onChange={(e) => {
+                        const newFunds = [...config.funds];
+                        newFunds[idx].enabled = e.target.checked;
+                        updateConfig('funds', newFunds);
+                      }}
+                      className="accent-gold w-4 h-4"
+                    />
+                  </div>
+                  <textarea 
+                    value={fund.description}
+                    onChange={(e) => {
+                      const newFunds = [...config.funds];
+                      newFunds[idx].description = e.target.value;
+                      updateConfig('funds', newFunds);
+                    }}
+                    className="w-full p-3 bg-white border border-neutral-100 rounded-xl text-[10px] outline-none h-20 font-serif italic"
+                  />
+                </div>
+              ))}
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-6 border-t border-gold/5">
                <div>
-                  <label className="block text-[10px] uppercase tracking-widest text-neutral-400 mb-2 font-bold ml-1">UPI ID</label>
+                  <label className="block text-[10px] uppercase tracking-widest text-neutral-400 mb-2 font-bold ml-1">UPI ID for Contributions</label>
                   <input 
                     type="text" 
                     value={config.couple.upi || ''}
@@ -287,13 +371,13 @@ const SetupDashboard = ({ config, updateConfig, onFinish }) => {
                   />
                </div>
                <div>
-                  <label className="block text-[10px] uppercase tracking-widest text-neutral-400 mb-2 font-bold ml-1">Bank Account No.</label>
+                  <label className="block text-[10px] uppercase tracking-widest text-neutral-400 mb-2 font-bold ml-1">Account No.</label>
                   <input 
                     type="text" 
                     value={config.couple.accountNo || ''}
                     onChange={(e) => updateConfig('couple.accountNo', e.target.value)}
                     className="w-full p-4 bg-neutral-50 border border-neutral-100 rounded-2xl focus:ring-2 focus:ring-gold/20 outline-none transition-all font-serif"
-                    placeholder="e.g. 123456789"
+                    placeholder="Bank details..."
                   />
                </div>
                <div>
@@ -303,7 +387,7 @@ const SetupDashboard = ({ config, updateConfig, onFinish }) => {
                     value={config.couple.ifsc || ''}
                     onChange={(e) => updateConfig('couple.ifsc', e.target.value)}
                     className="w-full p-4 bg-neutral-50 border border-neutral-100 rounded-2xl focus:ring-2 focus:ring-gold/20 outline-none transition-all font-serif"
-                    placeholder="e.g. BANK000123"
+                    placeholder="IFSC..."
                   />
                </div>
             </div>
@@ -357,6 +441,39 @@ const SetupDashboard = ({ config, updateConfig, onFinish }) => {
           </section>
         </div>
 
+          {/* Section 8: Share & Publish */}
+          <section className="col-span-1 md:col-span-2 space-y-8 bg-neutral-900 p-10 rounded-[2.5rem] shadow-2xl relative overflow-hidden text-white">
+             <div className="absolute top-0 right-0 p-8 opacity-10 pointer-events-none">
+                <Share2 className="w-32 h-32" />
+             </div>
+             
+             <div className="relative z-10">
+                <h2 className="text-3xl font-serif mb-2 italic">Ready to Invite?</h2>
+                <p className="text-xs text-neutral-400 uppercase tracking-widest font-bold mb-8">Share your premium cinematic invitation with guests</p>
+                
+                <div className="flex flex-col md:flex-row gap-4 items-center bg-white/5 p-4 rounded-3xl border border-white/10 backdrop-blur-sm">
+                   <div className="flex-1 w-full truncate font-mono text-[10px] text-neutral-300 px-4">
+                      {window.location.origin}/?mode=guest
+                   </div>
+                   <button 
+                     onClick={() => {
+                        const link = `${window.location.origin}/?mode=guest`;
+                        navigator.clipboard.writeText(link);
+                        alert("Guest Link Copied! You can now share this with your friends and family.");
+                     }}
+                     className="px-8 py-3 bg-gold text-white rounded-2xl font-bold text-xs uppercase tracking-widest hover:scale-105 transition-all flex items-center gap-2 w-full md:w-auto justify-center"
+                   >
+                      <Copy className="w-4 h-4" /> Copy Guest Link
+                   </button>
+                </div>
+                
+                <p className="mt-6 text-[10px] text-neutral-500 italic font-serif">
+                   Note: The Guest Link will hide the builder dashboard and only show the elegant wedding invitation.
+                </p>
+             </div>
+          </section>
+        </div>
+
         <motion.div 
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
@@ -364,14 +481,13 @@ const SetupDashboard = ({ config, updateConfig, onFinish }) => {
         >
           <button 
             onClick={onFinish}
-            className="px-12 py-5 bg-neutral-900 text-cream rounded-[2rem] font-serif text-lg tracking-widest hover:bg-gold transition-all duration-500 shadow-2xl flex items-center justify-center gap-4 mx-auto group"
+            className="px-12 py-5 bg-neutral-900 text-cream rounded-[2rem] font-serif text-lg tracking-widest hover:bg-gold transition-all duration-500 shadow-2xl flex items-center justify-center gap-4 mx-auto group border border-white/10"
           >
             <span>Preview Final Invitation</span>
             <Send className="w-5 h-5 group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
           </button>
         </motion.div>
       </div>
-    </div>
   );
 };
 

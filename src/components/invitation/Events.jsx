@@ -26,7 +26,7 @@ const Events = ({ events }) => {
         <motion.span 
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
-          className="text-[10px] uppercase tracking-[0.5em] text-gold font-bold block mb-4"
+          className="text-xs uppercase tracking-[0.6em] text-gold font-bold block mb-4 font-montserrat"
         >
           Join Us
         </motion.span>
@@ -34,7 +34,7 @@ const Events = ({ events }) => {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-5xl font-cinzel text-deep-green uppercase tracking-[0.2em] mb-6"
+          className="text-4xl md:text-5xl font-playfair text-deep-green tracking-wide mb-6 italic"
         >
           Wedding Events
         </motion.h2>
