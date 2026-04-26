@@ -72,6 +72,33 @@ function App() {
 
   const [isSyncing, setIsSyncing] = useState(false);
 
+  // Web Security (Basic Protection for Final Website & Guests)
+  React.useEffect(() => {
+    // Only apply protection when viewing the invitation and NOT logged in as admin
+    if (viewMode !== 'invitation' || isAdmin) return;
+
+    const handleContextMenu = (e) => e.preventDefault();
+    const handleKeyDown = (e) => {
+      // Prevent F12
+      if (e.key === 'F12') e.preventDefault();
+      // Prevent Ctrl+Shift+I, J, C and Ctrl+U
+      if (e.ctrlKey && e.shiftKey && ['I', 'i', 'J', 'j', 'C', 'c'].includes(e.key)) e.preventDefault();
+      if (e.ctrlKey && ['U', 'u'].includes(e.key)) e.preventDefault();
+    };
+
+    document.addEventListener('contextmenu', handleContextMenu);
+    document.addEventListener('keydown', handleKeyDown);
+
+    // Prevent text selection globally via CSS
+    document.body.style.userSelect = 'none';
+
+    return () => {
+      document.removeEventListener('contextmenu', handleContextMenu);
+      document.removeEventListener('keydown', handleKeyDown);
+      document.body.style.userSelect = 'auto';
+    };
+  }, [viewMode, isAdmin]);
+
   // Load from Supabase on start
   React.useEffect(() => {
     const loadFromCloud = async () => {
