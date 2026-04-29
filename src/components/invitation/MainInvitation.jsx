@@ -168,9 +168,11 @@ const MainInvitation = ({ config }) => {
                </div>
              </motion.div>
           </footer>
-
-          <GuestShareTool coupleNames={`${config.couple.name1} & ${config.couple.name2}`} config={config} />
         </motion.div>
+      )}
+
+      {isOpen && !showSplash && (
+        <GuestShareTool coupleNames={`${config.couple.name1} & ${config.couple.name2}`} config={config} guestName={guestName} />
       )}
 
       <AnimatePresence>

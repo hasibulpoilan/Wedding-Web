@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Share2, X, MessageCircle, Copy, Check, Download, Image as ImageIcon } from 'lucide-react';
 import html2canvas from 'html2canvas';
 
-const GuestShareTool = ({ coupleNames, config }) => {
+const GuestShareTool = ({ coupleNames, config, guestName }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [isCapturing, setIsCapturing] = useState(false);
@@ -117,9 +117,9 @@ const GuestShareTool = ({ coupleNames, config }) => {
             />
             
             <motion.div
-              initial={{ scale: 0.9, opacity: 0, y: 20 }}
-              animate={{ scale: 1, opacity: 1, y: 0 }}
-              exit={{ scale: 0.9, opacity: 0, y: 20 }}
+              initial={{ scale: 0.95, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.95, opacity: 0 }}
               className="relative w-full max-w-md bg-cream rounded-[2.5rem] p-10 shadow-2xl border border-gold/10 overflow-hidden"
             >
               <button 
@@ -130,8 +130,8 @@ const GuestShareTool = ({ coupleNames, config }) => {
               </button>
 
               <div className="text-center mb-6">
-                <h2 className="text-3xl font-serif text-deep-green italic">Share the Joy</h2>
-                <p className="text-[10px] text-gold uppercase tracking-[0.3em] font-bold mt-2">Get your premium digital card</p>
+                <h2 className="text-3xl md:text-4xl font-serif text-deep-green italic">Share the Joy</h2>
+                <p className="text-xs md:text-sm text-gold uppercase tracking-[0.3em] font-bold mt-2">Get your premium digital card</p>
               </div>
 
               {/* Digital Card Preview - Moved to Top */}
@@ -150,21 +150,29 @@ const GuestShareTool = ({ coupleNames, config }) => {
                 >
                   <div className="absolute inset-0 m-2 pointer-events-none" style={{ border: '1px solid rgba(197, 160, 89, 0.2)' }} />
                   
-                  <p className="text-[10px] uppercase tracking-[0.5em] mb-4 font-cinzel" style={{ color: '#C5A059' }}>Celebration of Love</p>
+                  {guestName ? (
+                    <div className="mb-4">
+                      <p className="text-[11px] md:text-[12px] uppercase tracking-[0.3em] font-cinzel mb-1" style={{ color: '#1B3022' }}>Honored Guest</p>
+                      <p className="text-[18px] md:text-[20px] font-bold font-serif uppercase tracking-widest" style={{ color: '#C5A059' }}>{guestName}</p>
+                      <p className="text-[10px] md:text-[11px] uppercase tracking-[0.2em] font-montserrat mt-2 italic" style={{ color: '#737373' }}>We joyfully invite you to our</p>
+                    </div>
+                  ) : (
+                    <p className="text-[12px] md:text-[14px] uppercase tracking-[0.5em] mb-4 font-cinzel" style={{ color: '#C5A059' }}>Celebration of Love</p>
+                  )}
                   
                   <div className="aspect-[4/5] relative rounded-full overflow-hidden mb-6 mx-auto w-40" style={{ border: '4px solid #ffffff', boxShadow: '0 15px 20px -5px rgba(0, 0, 0, 0.1)' }}>
                      <img 
-                       src={config?.couple?.coverPhoto || "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=80&w=2069&auto=format&fit=crop"} 
+                       src={config?.couple?.coverPhoto || "/assets/premium-og-preview.png"} 
                        className="w-full h-full object-cover" 
                        alt="Wedding Preview" 
                        crossOrigin="anonymous"
                      />
                   </div>
 
-                  <h3 className="text-3xl font-pinyon mb-3" style={{ color: '#1B3022' }}>{coupleNames}</h3>
+                  <h3 className="text-3xl md:text-4xl font-pinyon mb-3" style={{ color: '#1B3022' }}>{coupleNames}</h3>
                   <div className="w-10 h-[1px] mx-auto mb-3" style={{ backgroundColor: 'rgba(197, 160, 89, 0.3)' }} />
-                  <p className="text-[11px] tracking-[0.2em] font-serif italic mb-1" style={{ color: '#737373' }}>Wedding Ceremony</p>
-                  <p className="text-[9px] tracking-widest font-bold uppercase" style={{ color: 'rgba(197, 160, 89, 0.6)' }}>Save The Date</p>
+                  <p className="text-[13px] md:text-[14px] tracking-[0.2em] font-serif italic mb-1" style={{ color: '#737373' }}>Wedding Ceremony</p>
+                  <p className="text-[11px] md:text-[12px] tracking-widest font-bold uppercase" style={{ color: 'rgba(197, 160, 89, 0.6)' }}>Save The Date</p>
                 </div>
 
                 <div className="flex flex-col gap-3">
@@ -179,7 +187,7 @@ const GuestShareTool = ({ coupleNames, config }) => {
                       ) : (
                         <>
                           <Download className="w-5 h-5" />
-                          <span className="text-xs font-bold uppercase tracking-widest">Generate & Download Card</span>
+                          <span className="text-sm font-bold uppercase tracking-widest">Generate & Download Card</span>
                         </>
                       )}
                     </button>
@@ -190,8 +198,8 @@ const GuestShareTool = ({ coupleNames, config }) => {
                       className="space-y-4"
                     >
                       <div className="p-4 bg-green-50 border border-green-100 rounded-2xl text-center">
-                        <p className="text-[10px] text-green-600 font-bold uppercase tracking-widest mb-1">✨ Card Saved to Gallery!</p>
-                        <p className="text-[9px] text-green-600/70 italic">Now share it on your Story or Status</p>
+                        <p className="text-xs text-green-600 font-bold uppercase tracking-widest mb-1">✨ Card Saved to Gallery!</p>
+                        <p className="text-[11px] text-green-600/70 italic">Now share it on your Story or Status</p>
                       </div>
                       
                       <div className="grid grid-cols-3 gap-2">
@@ -200,34 +208,34 @@ const GuestShareTool = ({ coupleNames, config }) => {
                           className="flex flex-col items-center gap-2 p-3 bg-white rounded-xl border border-neutral-100 hover:border-gold/20"
                         >
                           <MessageCircle className="w-5 h-5 text-[#25D366]" />
-                          <span className="text-[8px] font-bold uppercase text-neutral-400">WhatsApp</span>
+                          <span className="text-[10px] font-bold uppercase text-neutral-400">WhatsApp</span>
                         </button>
                         <button 
                           onClick={() => alert("Paste the card you just downloaded into your Instagram Story! ✨")}
                           className="flex flex-col items-center gap-2 p-3 bg-white rounded-xl border border-neutral-100 hover:border-gold/20"
                         >
                           <ImageIcon className="w-5 h-5 text-[#E4405F]" />
-                          <span className="text-[8px] font-bold uppercase text-neutral-400">Instagram</span>
+                          <span className="text-[10px] font-bold uppercase text-neutral-400">Instagram</span>
                         </button>
                         <button 
                           onClick={handleCopy}
                           className="flex flex-col items-center gap-2 p-3 bg-white rounded-xl border border-neutral-100 hover:border-gold/20"
                         >
                           <Copy className="w-5 h-5 text-gold" />
-                          <span className="text-[8px] font-bold uppercase text-neutral-400">Copy Caption</span>
+                          <span className="text-[10px] font-bold uppercase text-neutral-400">Copy Caption</span>
                         </button>
                       </div>
                       
                       <button 
                         onClick={() => setIsDownloaded(false)}
-                        className="w-full py-2 text-[8px] text-neutral-400 uppercase tracking-widest hover:text-gold transition-colors"
+                        className="w-full py-2 text-[10px] text-neutral-400 uppercase tracking-widest hover:text-gold transition-colors"
                       >
                         Reset & Redownload
                       </button>
                     </motion.div>
                   )}
                   
-                  <p className="text-[9px] text-neutral-400 text-center italic font-medium px-4 leading-relaxed">
+                  <p className="text-[11px] text-neutral-400 text-center italic font-medium px-4 leading-relaxed">
                     {!isDownloaded 
                       ? "Get your personalized invitation card as a high-quality image."
                       : "The card is in your downloads/gallery. Select an app to share the celebration!"
@@ -243,19 +251,19 @@ const GuestShareTool = ({ coupleNames, config }) => {
                 >
                   {copied ? (
                     <>
-                      <Check className="w-3 h-3 text-green-500" />
-                      <span className="text-[10px] font-bold uppercase tracking-widest">Link Copied</span>
+                      <Check className="w-4 h-4 text-green-500" />
+                      <span className="text-xs font-bold uppercase tracking-widest">Link Copied</span>
                     </>
                   ) : (
                     <>
-                      <Copy className="w-3 h-3 text-neutral-400" />
-                      <span className="text-[10px] font-bold uppercase tracking-widest">Get Web Link</span>
+                      <Copy className="w-4 h-4 text-neutral-400" />
+                      <span className="text-xs font-bold uppercase tracking-widest">Get Web Link</span>
                     </>
                   )}
                 </button>
               </div>
 
-              <p className="mt-8 text-center text-[10px] text-neutral-400 leading-relaxed italic">
+              <p className="mt-8 text-center text-xs text-neutral-400 leading-relaxed italic">
                 "Shared happiness is double happiness." <br/> Thank you for being a part of our celebration!
               </p>
             </motion.div>

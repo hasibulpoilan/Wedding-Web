@@ -16,7 +16,7 @@ const Envelope = ({ initials, onOpen }) => {
       exit={{ opacity: 0, transition: { duration: 0.8 } }}
       className="absolute inset-0 z-[100] flex items-center justify-center bg-stone-900/40 backdrop-blur-sm"
     >
-      <div className="relative w-72 h-52 perspective-1000">
+      <div className="relative w-[92vw] h-[65vw] sm:w-[400px] sm:h-[280px] perspective-1000">
         {/* Lower Part of Envelope */}
         <motion.div 
           className="absolute inset-0 bg-envelope-red rounded-sm z-10 shadow-2xl overflow-hidden"

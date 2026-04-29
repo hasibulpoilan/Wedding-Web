@@ -143,6 +143,28 @@ function App() {
     loadFromCloud();
   }, []);
 
+  // Dynamically update Open Graph meta tags for link previews
+  React.useEffect(() => {
+    if (!config) return;
+
+    const coverPhoto = config?.couple?.coverPhoto || config?.stories?.[0]?.image || "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=80&w=2069&auto=format&fit=crop";
+    const title = `Wedding Invitation: ${config.couple.name1 || ''} & ${config.couple.name2 || ''}`;
+    
+    // Update document title
+    document.title = title;
+
+    // Helper to safely update meta tags
+    const updateMetaTag = (selector, content) => {
+      const tag = document.querySelector(selector);
+      if (tag) tag.setAttribute('content', content);
+    };
+
+    updateMetaTag('meta[property="og:title"]', title);
+    updateMetaTag('meta[property="og:image"]', coverPhoto);
+    updateMetaTag('meta[itemprop="name"]', title);
+    updateMetaTag('meta[itemprop="image"]', coverPhoto);
+  }, [config]);
+
   const saveToCloud = async () => {
     setIsSyncing(true);
     const { error } = await supabase
@@ -234,7 +256,7 @@ function App() {
               <motion.button
                 whileHover={{ scale: 1.1 }}
                 onClick={() => setViewMode('setup')}
-                className="fixed bottom-8 right-8 z-[200] w-12 h-12 bg-white rounded-full shadow-2xl flex items-center justify-center text-gold border border-gold/10 hover:bg-gold hover:text-white transition-colors"
+                className="fixed bottom-24 right-7 z-[200] w-12 h-12 bg-white rounded-full shadow-2xl flex items-center justify-center text-gold border border-gold/10 hover:bg-gold hover:text-white transition-colors"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
               </motion.button>
