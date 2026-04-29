@@ -26,11 +26,18 @@ const GuestShareTool = ({ coupleNames, config }) => {
     if (!cardRef.current) return;
     setIsCapturing(true);
     try {
+      // Small delay to ensure all animations and images are settled
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
       const canvas = await html2canvas(cardRef.current, {
         useCORS: true,
+        allowTaint: false,
         scale: 2,
-        backgroundColor: '#FDFBF7'
+        backgroundColor: '#FDFBF7',
+        logging: true,
+        imageTimeout: 5000,
       });
+      
       const image = canvas.toDataURL('image/jpeg', 0.9);
       const link = document.createElement('a');
       link.href = image;
@@ -159,25 +166,33 @@ const GuestShareTool = ({ coupleNames, config }) => {
                 <p className="text-[10px] text-neutral-400 font-bold uppercase tracking-widest text-center">Your Personal Digital Card:</p>
                 <div 
                   ref={cardRef}
-                  className="relative overflow-hidden rounded-[2.5rem] border-8 border-gold/10 shadow-2xl bg-cream p-8 text-center"
-                  style={{ width: '100%', maxWidth: '320px', margin: '0 auto' }}
+                  className="relative overflow-hidden rounded-[2.5rem] p-8 text-center"
+                  style={{ 
+                    width: '100%', 
+                    maxWidth: '320px', 
+                    margin: '0 auto',
+                    backgroundColor: '#FDFBF7',
+                    border: '8px solid rgba(197, 160, 89, 0.1)',
+                    boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)'
+                  }}
                 >
-                  <div className="absolute inset-0 border-[1px] border-gold/20 m-2 pointer-events-none" />
+                  <div className="absolute inset-0 m-2 pointer-events-none" style={{ border: '1px solid rgba(197, 160, 89, 0.2)' }} />
                   
-                  <p className="text-[10px] uppercase tracking-[0.5em] text-gold mb-6 font-cinzel">Joining the Celebration</p>
+                  <p className="text-[10px] uppercase tracking-[0.5em] mb-6 font-cinzel" style={{ color: '#C5A059' }}>Joining the Celebration</p>
                   
-                  <div className="aspect-[4/5] relative rounded-full overflow-hidden mb-8 border-4 border-white shadow-xl mx-auto w-48">
+                  <div className="aspect-[4/5] relative rounded-full overflow-hidden mb-8 mx-auto w-48" style={{ border: '4px solid #ffffff', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)' }}>
                      <img 
-                       src={config?.couple?.coverPhoto || "https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=2070&auto=format&fit=crop"} 
+                       src={config?.couple?.coverPhoto || "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=80&w=2069&auto=format&fit=crop"} 
                        className="w-full h-full object-cover" 
                        alt="Wedding Preview" 
+                       crossOrigin="anonymous"
                      />
                   </div>
 
-                  <h3 className="text-4xl font-pinyon text-deep-green mb-4">{coupleNames}</h3>
-                  <div className="w-12 h-[1px] bg-gold/30 mx-auto mb-4" />
-                  <p className="text-[12px] text-neutral-500 tracking-[0.2em] font-serif italic mb-2">Wedding Celebration</p>
-                  <p className="text-[10px] text-gold/60 tracking-widest font-bold uppercase">Save The Date</p>
+                  <h3 className="text-4xl font-pinyon mb-4" style={{ color: '#1B3022' }}>{coupleNames}</h3>
+                  <div className="w-12 h-[1px] mx-auto mb-4" style={{ backgroundColor: 'rgba(197, 160, 89, 0.3)' }} />
+                  <p className="text-[12px] tracking-[0.2em] font-serif italic mb-2" style={{ color: '#737373' }}>Wedding Celebration</p>
+                  <p className="text-[10px] tracking-widest font-bold uppercase" style={{ color: 'rgba(197, 160, 89, 0.6)' }}>Save The Date</p>
                 </div>
 
                 <div className="flex flex-col gap-3 pt-4">
