@@ -7,6 +7,7 @@ const GuestShareTool = ({ coupleNames, config }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [isCapturing, setIsCapturing] = useState(false);
+  const [isDownloaded, setIsDownloaded] = useState(false);
   const cardRef = React.useRef(null);
 
   useEffect(() => {
@@ -27,26 +28,52 @@ const GuestShareTool = ({ coupleNames, config }) => {
     setIsCapturing(true);
     try {
       // Small delay to ensure all animations and images are settled
-      await new Promise(resolve => setTimeout(resolve, 500));
+      await new Promise(resolve => setTimeout(resolve, 800));
       
       const canvas = await html2canvas(cardRef.current, {
         useCORS: true,
-        allowTaint: false,
+        allowTaint: true,
         scale: 2,
         backgroundColor: '#FDFBF7',
         logging: true,
-        imageTimeout: 5000,
+        imageTimeout: 10000,
+        foreignObjectRendering: false,
+        removeContainer: true,
       });
       
       const image = canvas.toDataURL('image/jpeg', 0.9);
+      
+      // Mark as downloaded to show share options
+      setIsDownloaded(true);
+
+      // Try to use Native Share API if available (especially for mobile)
+      if (navigator.share && navigator.canShare) {
+        const blob = await (await fetch(image)).blob();
+        const file = new File([blob], `${coupleNames.replace(/ & /g, '_')}_Invitation.jpg`, { type: 'image/jpeg' });
+        
+        if (navigator.canShare({ files: [file] })) {
+          try {
+            await navigator.share({
+              files: [file],
+              title: 'Wedding Invitation',
+              text: `✨ A Beautiful Journey Begins ✨ - Celebration of ${coupleNames}`
+            });
+            return; // Success!
+          } catch (shareErr) {
+            console.log("Share cancelled or failed:", shareErr);
+          }
+        }
+      }
+
+      // Fallback: Download the image
       const link = document.createElement('a');
       link.href = image;
       link.download = `${coupleNames.replace(/ & /g, '_')}_Wedding_Invitation.jpg`;
       link.click();
       alert("Invitation Card Downloaded! Now you can share this image on your WhatsApp Status or Instagram Story. ✨");
     } catch (err) {
-      console.error("Failed to capture card:", err);
-      alert("Could not generate image. Please take a screenshot of the card instead!");
+      console.error("Detailed Capture Error:", err);
+      alert(`Could not generate image: ${err.message || 'Unknown Error'}. Please take a screenshot of the card instead!`);
     }
     setIsCapturing(false);
   };
@@ -57,44 +84,7 @@ const GuestShareTool = ({ coupleNames, config }) => {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const shareOptions = [
-    {
-      name: 'WhatsApp Status',
-      icon: <MessageCircle className="w-6 h-6" />,
-      color: 'bg-[#25D366]',
-      action: () => {
-        const text = `✨ A Beautiful Journey Begins ✨\n\nI am so honored to be part of the wedding celebration of ${coupleNames}!\n\n#Wedding #Celebration #LoveAndJoy`;
-        window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
-      }
-    },
-    {
-      name: 'Facebook',
-      icon: (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6">
-          <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
-        </svg>
-      ),
-      color: 'bg-[#1877F2]',
-      action: () => {
-        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(invitationLink)}`, '_blank');
-      }
-    },
-    {
-      name: 'Instagram',
-      icon: (
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="w-6 h-6">
-          <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
-          <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" />
-          <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" />
-        </svg>
-      ),
-      color: 'bg-gradient-to-tr from-[#f9ce34] via-[#ee2a7b] to-[#6228d7]',
-      action: () => {
-        navigator.clipboard.writeText(invitationLink);
-        alert("Invitation link copied for your Instagram Story/Bio!");
-      }
-    }
-  ];
+
 
   return (
     <>
@@ -139,37 +129,19 @@ const GuestShareTool = ({ coupleNames, config }) => {
                 <X className="w-6 h-6" />
               </button>
 
-              <div className="text-center mb-10">
-                <div className="w-16 h-16 bg-gold/10 rounded-2xl flex items-center justify-center text-gold mx-auto mb-4">
-                  <Share2 className="w-8 h-8" />
-                </div>
-                <h2 className="text-3xl font-serif text-deep-green italic">Share the Love</h2>
-                <p className="text-[10px] text-gold uppercase tracking-[0.3em] font-bold mt-2">Let others see this beautiful journey</p>
+              <div className="text-center mb-6">
+                <h2 className="text-3xl font-serif text-deep-green italic">Share the Joy</h2>
+                <p className="text-[10px] text-gold uppercase tracking-[0.3em] font-bold mt-2">Get your premium digital card</p>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 mb-8">
-                {shareOptions.map((option) => (
-                  <button
-                    key={option.name}
-                    onClick={option.action}
-                    className="flex flex-col items-center gap-3 p-6 bg-white rounded-3xl border border-neutral-100 hover:border-gold/30 hover:shadow-lg transition-all group"
-                  >
-                    <div className={`${option.color} text-white p-3 rounded-2xl shadow-lg group-hover:scale-110 transition-transform`}>
-                      {option.icon}
-                    </div>
-                    <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-500">{option.name}</span>
-                  </button>
-                ))}
-              </div>
-
-              <div className="space-y-4">
-                <p className="text-[10px] text-neutral-400 font-bold uppercase tracking-widest text-center">Your Personal Digital Card:</p>
+              {/* Digital Card Preview - Moved to Top */}
+              <div className="space-y-6">
                 <div 
                   ref={cardRef}
                   className="relative overflow-hidden rounded-[2.5rem] p-8 text-center"
                   style={{ 
                     width: '100%', 
-                    maxWidth: '320px', 
+                    maxWidth: '300px', 
                     margin: '0 auto',
                     backgroundColor: '#FDFBF7',
                     border: '8px solid rgba(197, 160, 89, 0.1)',
@@ -178,9 +150,9 @@ const GuestShareTool = ({ coupleNames, config }) => {
                 >
                   <div className="absolute inset-0 m-2 pointer-events-none" style={{ border: '1px solid rgba(197, 160, 89, 0.2)' }} />
                   
-                  <p className="text-[10px] uppercase tracking-[0.5em] mb-6 font-cinzel" style={{ color: '#C5A059' }}>Joining the Celebration</p>
+                  <p className="text-[10px] uppercase tracking-[0.5em] mb-4 font-cinzel" style={{ color: '#C5A059' }}>Celebration of Love</p>
                   
-                  <div className="aspect-[4/5] relative rounded-full overflow-hidden mb-8 mx-auto w-48" style={{ border: '4px solid #ffffff', boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1)' }}>
+                  <div className="aspect-[4/5] relative rounded-full overflow-hidden mb-6 mx-auto w-40" style={{ border: '4px solid #ffffff', boxShadow: '0 15px 20px -5px rgba(0, 0, 0, 0.1)' }}>
                      <img 
                        src={config?.couple?.coverPhoto || "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=80&w=2069&auto=format&fit=crop"} 
                        className="w-full h-full object-cover" 
@@ -189,45 +161,95 @@ const GuestShareTool = ({ coupleNames, config }) => {
                      />
                   </div>
 
-                  <h3 className="text-4xl font-pinyon mb-4" style={{ color: '#1B3022' }}>{coupleNames}</h3>
-                  <div className="w-12 h-[1px] mx-auto mb-4" style={{ backgroundColor: 'rgba(197, 160, 89, 0.3)' }} />
-                  <p className="text-[12px] tracking-[0.2em] font-serif italic mb-2" style={{ color: '#737373' }}>Wedding Celebration</p>
-                  <p className="text-[10px] tracking-widest font-bold uppercase" style={{ color: 'rgba(197, 160, 89, 0.6)' }}>Save The Date</p>
+                  <h3 className="text-3xl font-pinyon mb-3" style={{ color: '#1B3022' }}>{coupleNames}</h3>
+                  <div className="w-10 h-[1px] mx-auto mb-3" style={{ backgroundColor: 'rgba(197, 160, 89, 0.3)' }} />
+                  <p className="text-[11px] tracking-[0.2em] font-serif italic mb-1" style={{ color: '#737373' }}>Wedding Ceremony</p>
+                  <p className="text-[9px] tracking-widest font-bold uppercase" style={{ color: 'rgba(197, 160, 89, 0.6)' }}>Save The Date</p>
                 </div>
 
-                <div className="flex flex-col gap-3 pt-4">
-                  <button
-                    onClick={handleDownload}
-                    disabled={isCapturing}
-                    className="w-full py-5 bg-gold text-white rounded-2xl flex items-center justify-center gap-3 hover:bg-gold/90 transition-all active:scale-95 shadow-xl shadow-gold/20 disabled:opacity-50"
-                  >
-                    {isCapturing ? (
-                      <span className="animate-pulse">Generating Card...</span>
-                    ) : (
-                      <>
-                        <Download className="w-5 h-5" />
-                        <span className="text-xs font-bold uppercase tracking-widest">Download & Share Image</span>
-                      </>
-                    )}
-                  </button>
-                  <p className="text-[8px] text-neutral-400 text-center italic font-medium">Download this premium card to share as an image on your Status/Story!</p>
+                <div className="flex flex-col gap-3">
+                  {!isDownloaded ? (
+                    <button
+                      onClick={handleDownload}
+                      disabled={isCapturing}
+                      className="w-full py-5 bg-gold text-white rounded-2xl flex items-center justify-center gap-3 hover:bg-gold/90 transition-all active:scale-95 shadow-xl shadow-gold/20 disabled:opacity-50"
+                    >
+                      {isCapturing ? (
+                        <span className="animate-pulse">Generating Card...</span>
+                      ) : (
+                        <>
+                          <Download className="w-5 h-5" />
+                          <span className="text-xs font-bold uppercase tracking-widest">Generate & Download Card</span>
+                        </>
+                      )}
+                    </button>
+                  ) : (
+                    <motion.div 
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="space-y-4"
+                    >
+                      <div className="p-4 bg-green-50 border border-green-100 rounded-2xl text-center">
+                        <p className="text-[10px] text-green-600 font-bold uppercase tracking-widest mb-1">✨ Card Saved to Gallery!</p>
+                        <p className="text-[9px] text-green-600/70 italic">Now share it on your Story or Status</p>
+                      </div>
+                      
+                      <div className="grid grid-cols-3 gap-2">
+                        <button 
+                          onClick={() => window.open(`https://wa.me/?text=${encodeURIComponent(`✨ Join us for the wedding of ${coupleNames}! ✨`)}`, '_blank')}
+                          className="flex flex-col items-center gap-2 p-3 bg-white rounded-xl border border-neutral-100 hover:border-gold/20"
+                        >
+                          <MessageCircle className="w-5 h-5 text-[#25D366]" />
+                          <span className="text-[8px] font-bold uppercase text-neutral-400">WhatsApp</span>
+                        </button>
+                        <button 
+                          onClick={() => alert("Paste the card you just downloaded into your Instagram Story! ✨")}
+                          className="flex flex-col items-center gap-2 p-3 bg-white rounded-xl border border-neutral-100 hover:border-gold/20"
+                        >
+                          <ImageIcon className="w-5 h-5 text-[#E4405F]" />
+                          <span className="text-[8px] font-bold uppercase text-neutral-400">Instagram</span>
+                        </button>
+                        <button 
+                          onClick={handleCopy}
+                          className="flex flex-col items-center gap-2 p-3 bg-white rounded-xl border border-neutral-100 hover:border-gold/20"
+                        >
+                          <Copy className="w-5 h-5 text-gold" />
+                          <span className="text-[8px] font-bold uppercase text-neutral-400">Copy Caption</span>
+                        </button>
+                      </div>
+                      
+                      <button 
+                        onClick={() => setIsDownloaded(false)}
+                        className="w-full py-2 text-[8px] text-neutral-400 uppercase tracking-widest hover:text-gold transition-colors"
+                      >
+                        Reset & Redownload
+                      </button>
+                    </motion.div>
+                  )}
+                  
+                  <p className="text-[9px] text-neutral-400 text-center italic font-medium px-4 leading-relaxed">
+                    {!isDownloaded 
+                      ? "Get your personalized invitation card as a high-quality image."
+                      : "The card is in your downloads/gallery. Select an app to share the celebration!"
+                    }
+                  </p>
                 </div>
               </div>
 
-              <div className="pt-8 border-t border-gold/10">
+              <div className="pt-6 mt-6 border-t border-gold/10 flex flex-col items-center">
                 <button
                   onClick={handleCopy}
-                  className="w-full py-4 bg-white border border-neutral-200 rounded-2xl flex items-center justify-center gap-3 hover:bg-neutral-50 transition-all active:scale-95"
+                  className="px-6 py-2 bg-neutral-50 text-neutral-500 rounded-xl flex items-center justify-center gap-2 hover:bg-neutral-100 transition-all active:scale-95 border border-neutral-100"
                 >
                   {copied ? (
                     <>
-                      <Check className="w-4 h-4 text-green-500" />
-                      <span className="text-xs font-bold text-green-600 uppercase tracking-widest">Link Copied!</span>
+                      <Check className="w-3 h-3 text-green-500" />
+                      <span className="text-[10px] font-bold uppercase tracking-widest">Link Copied</span>
                     </>
                   ) : (
                     <>
-                      <Copy className="w-4 h-4 text-gold" />
-                      <span className="text-xs font-bold text-neutral-600 uppercase tracking-widest">Get Invitation Link</span>
+                      <Copy className="w-3 h-3 text-neutral-400" />
+                      <span className="text-[10px] font-bold uppercase tracking-widest">Get Web Link</span>
                     </>
                   )}
                 </button>
