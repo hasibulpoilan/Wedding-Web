@@ -95,7 +95,7 @@ const MainInvitation = ({ config }) => {
         )}
       </AnimatePresence>
 
-      {isOpen && <Navigation />}
+      {/* {isOpen && <Navigation />} */}
 
       <AnimatePresence>
         {showSplash && <SplashIntro guestName={guestName} config={config} />}
@@ -169,7 +169,7 @@ const MainInvitation = ({ config }) => {
              </motion.div>
           </footer>
 
-          <GuestShareTool coupleNames={`${config.couple.name1} & ${config.couple.name2}`} />
+          <GuestShareTool coupleNames={`${config.couple.name1} & ${config.couple.name2}`} config={config} />
         </motion.div>
       )}
 

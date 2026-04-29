@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Share2, X, MessageCircle, Copy, Check } from 'lucide-react';
 
-const GuestShareTool = ({ coupleNames }) => {
+const GuestShareTool = ({ coupleNames, config }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [copied, setCopied] = useState(false);
 
@@ -31,7 +31,7 @@ const GuestShareTool = ({ coupleNames }) => {
       icon: <MessageCircle className="w-6 h-6" />,
       color: 'bg-[#25D366]',
       action: () => {
-        const text = `✨ You are invited to witness a beautiful beginning! ✨\n\nJoin us for the wedding celebration of ${coupleNames}.\n\nView the cinematic digital invitation here:\n${invitationLink}\n\n#WeddingInvitation #LoveAndJoy`;
+        const text = `✨ A Beautiful Journey Begins ✨\n\nI am so honored to be part of the wedding celebration of ${coupleNames}!\n\n#Wedding #Celebration #LoveAndJoy`;
         window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
       }
     },
@@ -131,7 +131,32 @@ const GuestShareTool = ({ coupleNames }) => {
               </div>
 
               <div className="space-y-4">
-                <p className="text-[10px] text-neutral-400 font-bold uppercase tracking-widest text-center">Instagram & Others:</p>
+                <p className="text-[10px] text-neutral-400 font-bold uppercase tracking-widest text-center">Your Personal Digital Card:</p>
+                <div className="relative group cursor-pointer overflow-hidden rounded-[2rem] border border-gold/20 shadow-xl bg-white p-4">
+                  <div className="aspect-[4/5] relative rounded-2xl overflow-hidden mb-4">
+                     <img 
+                       src={config?.couple?.coverPhoto || "https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=2070&auto=format&fit=crop"} 
+                       className="w-full h-full object-cover" 
+                       alt="Wedding Preview" 
+                     />
+                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-6 text-white">
+                        <p className="text-[8px] uppercase tracking-[0.4em] mb-2 text-gold/80">Joining the Celebration</p>
+                        <h3 className="text-2xl font-serif italic mb-1">{coupleNames}</h3>
+                        <p className="text-[10px] opacity-70 tracking-widest">W E D D I N G</p>
+                     </div>
+                  </div>
+                  <button
+                    onClick={() => alert("Tip: Take a screenshot of this card to share on your Instagram Story or WhatsApp Status! ✨")}
+                    className="w-full py-4 bg-gold text-white rounded-2xl flex items-center justify-center gap-3 hover:bg-gold/90 transition-all active:scale-95 shadow-lg shadow-gold/20"
+                  >
+                    <Share2 className="w-4 h-4" />
+                    <span className="text-xs font-bold uppercase tracking-widest">Share as Image</span>
+                  </button>
+                  <p className="text-[8px] text-neutral-400 text-center mt-3 italic font-medium">Screenshot this card to share without a link!</p>
+                </div>
+              </div>
+
+              <div className="pt-8 border-t border-gold/10">
                 <button
                   onClick={handleCopy}
                   className="w-full py-4 bg-white border border-neutral-200 rounded-2xl flex items-center justify-center gap-3 hover:bg-neutral-50 transition-all active:scale-95"
@@ -144,7 +169,7 @@ const GuestShareTool = ({ coupleNames }) => {
                   ) : (
                     <>
                       <Copy className="w-4 h-4 text-gold" />
-                      <span className="text-xs font-bold text-neutral-600 uppercase tracking-widest">Copy Invitation Link</span>
+                      <span className="text-xs font-bold text-neutral-600 uppercase tracking-widest">Get Invitation Link</span>
                     </>
                   )}
                 </button>
