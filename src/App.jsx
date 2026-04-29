@@ -35,7 +35,26 @@ const initialConfig = {
     { id: 2, title: "New Home Fund", description: "Contribute towards building our little nest together.", enabled: true },
     { id: 3, title: "Romantic Dinner", description: "Treat us to a beautiful candlelit dinner.", enabled: true }
   ],
-  tier: 'gold' // 'basic', 'gold', 'platinum'
+  menu: [
+    { 
+      id: "starters", 
+      title: "Starters", 
+      items: [
+        { name: "Paneer Tikka", description: "Grilled cottage cheese with spices", tag: "Veg" },
+        { name: "Chicken 65", description: "Spicy deep-fried chicken", tag: "Non-Veg" }
+      ] 
+    },
+    { 
+      id: "main", 
+      title: "Main Course", 
+      items: [
+        { name: "Butter Chicken", description: "Creamy tomato based chicken curry" },
+        { name: "Dal Makhani", description: "Slow cooked black lentils" }
+      ] 
+    }
+  ],
+  tier: 'gold', // 'basic', 'gold', 'platinum'
+  guestName: "Our Special Guest"
 };
 
 function App() {

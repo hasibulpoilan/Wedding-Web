@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Envelope from './Envelope';
+import SplashIntro from './SplashIntro';
 import Hero from './Hero';
 import OurStory from './OurStory';
 import Events from './Events';
@@ -13,17 +14,40 @@ import WishesWall from './WishesWall';
 import VideoIntro from './VideoIntro';
 import VendorReferrals from './VendorReferrals';
 import ContributionFunds from './ContributionFunds';
+import FoodMenu from './FoodMenu';
+import Navigation from './Navigation';
+import GuestShareTool from './GuestShareTool';
 
 const MainInvitation = ({ config }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [startMusic, setStartMusic] = useState(false);
   const [showIntro, setShowIntro] = useState(false);
+  const [showSplash, setShowSplash] = useState(false);
   const [showContactModal, setShowContactModal] = useState(false);
   const [promoCode, setPromoCode] = useState('');
+  const [guestName, setGuestName] = useState('');
 
   useEffect(() => {
-    // Check URL for referral code
+    if (config.couple.name1 && config.couple.name2) {
+      document.title = `Wedding Invitation: ${config.couple.name1} & ${config.couple.name2}`;
+    }
+  }, [config.couple]);
+
+  useEffect(() => {
     const params = new URLSearchParams(window.location.search);
+    
+    // Default from config
+    let finalGuestName = config.guestName || '';
+    
+    // Check URL for guest name (overrides config)
+    const guest = params.get('guest');
+    if (guest) {
+      finalGuestName = guest;
+    }
+    
+    setGuestName(finalGuestName);
+
+    // Check URL for referral code
     const ref = params.get('ref');
     if (ref) {
       setPromoCode(ref);
@@ -39,6 +63,10 @@ const MainInvitation = ({ config }) => {
   const handleOpen = () => {
     setIsOpen(true);
     setStartMusic(true);
+    setShowSplash(true);
+    setTimeout(() => {
+      setShowSplash(false);
+    }, 2200);
   };
 
   const handleIntroComplete = () => {
@@ -67,19 +95,25 @@ const MainInvitation = ({ config }) => {
         )}
       </AnimatePresence>
 
-      {isOpen && (
+      {isOpen && <Navigation />}
+
+      <AnimatePresence>
+        {showSplash && <SplashIntro guestName={guestName} config={config} />}
+      </AnimatePresence>
+
+      {isOpen && !showSplash && (
         <motion.div 
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
+          initial={{ opacity: 0, filter: 'blur(10px)' }}
+          animate={{ opacity: 1, filter: 'blur(0px)' }}
           transition={{ duration: 1.5, ease: "easeOut" }}
           className="relative"
         >
           <Petals />
           
-          <Hero config={config} />
+          <Hero config={config} guestName={guestName} />
           
           {/* Save the Date Interactivity */}
-          <section className="py-24 bg-cream flex flex-col items-center justify-center border-y border-gold/10">
+          <section id="save-the-date" className="py-24 bg-cream flex flex-col items-center justify-center border-y border-gold/10">
              <div className="mb-12 text-center">
                 <span className="text-[10px] uppercase tracking-[0.4em] text-gold font-bold">Important Notice</span>
                 <h2 className="text-4xl font-serif text-deep-green mt-2">Save the Date</h2>
@@ -87,14 +121,16 @@ const MainInvitation = ({ config }) => {
              <ScratchCard revealDate={config.date} />
           </section>
 
-          <OurStory stories={config.stories} />
-          <Events events={config.events} />
-          <Mandap isPlatinum={true} />
+          <OurStory stories={config.stories} id="story" />
+          <div id="events"><Events events={config.events} /></div>
+          <div id="venue"><Mandap isPlatinum={true} /></div>
           
+          <FoodMenu menu={config.menu} />
+
           <ContributionFunds config={config} />
           
           <WishesWall />
-          <RSVPForm config={config} />
+          <div id="rsvp"><RSVPForm config={config} /></div>
           
           <footer className="py-24 text-center bg-cream border-t border-gold/10 relative overflow-hidden">
              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[12rem] font-pinyon text-gold/5 whitespace-nowrap pointer-events-none">
@@ -132,6 +168,8 @@ const MainInvitation = ({ config }) => {
                </div>
              </motion.div>
           </footer>
+
+          <GuestShareTool coupleNames={`${config.couple.name1} & ${config.couple.name2}`} />
         </motion.div>
       )}
 

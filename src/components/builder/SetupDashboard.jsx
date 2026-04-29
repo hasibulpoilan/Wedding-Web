@@ -1,6 +1,6 @@
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { motion } from 'framer-motion';
-import { Heart, Calendar, MapPin, ImageIcon, Sparkles, Send, Music, Upload, Gift, Share2, Copy, Check, CloudSync, Save } from 'lucide-react';
+import { Heart, Calendar, MapPin, ImageIcon, Sparkles, Send, Music, Upload, Gift, Share2, Copy, Check, CloudSync, Save, UtensilsCrossed, Plus, Trash2, X } from 'lucide-react';
 
 const SetupDashboard = ({ config, updateConfig, isAdmin, saveToCloud, isSyncing, onFinish }) => {
   const fileInputRef = useRef(null);
@@ -98,6 +98,18 @@ const SetupDashboard = ({ config, updateConfig, isAdmin, saveToCloud, isSyncing,
               <Heart className="w-5 h-5 text-gold" /> The Happy Couple & Link ID
             </h2>
             <div className="space-y-4">
+              <div className="p-4 bg-gold/5 rounded-2xl border border-gold/10 mb-4">
+                <label className="block text-[10px] uppercase tracking-widest text-gold font-bold mb-2">Default Guest Name (Stored in Config)</label>
+                <input
+                  type="text"
+                  value={config.guestName || ''}
+                  onChange={(e) => updateConfig('guestName', e.target.value)}
+                  className="w-full p-4 bg-white border border-gold/20 rounded-2xl focus:ring-2 focus:ring-gold/20 outline-none transition-all font-serif"
+                  placeholder="e.g. Hasibul Pailan"
+                />
+                <p className="text-[8px] text-neutral-400 mt-2 italic">* This name will show up for ALL guests unless you use a personalized link.</p>
+              </div>
+
               <div>
                 <label className="block text-[10px] uppercase tracking-widest text-neutral-400 mb-2 font-bold ml-1">Unique Wedding ID (URL Slug)</label>
                 <div className="flex items-center gap-2">
@@ -490,6 +502,121 @@ const SetupDashboard = ({ config, updateConfig, isAdmin, saveToCloud, isSyncing,
             </div>
           </section>
 
+          {/* Section: Wedding Feast (Food Menu) */}
+          <section className="col-span-1 md:col-span-2 space-y-6 bg-white p-8 rounded-[2rem] shadow-sm border border-gold/5">
+            <div className="flex justify-between items-center border-b border-gold/10 pb-4">
+              <h2 className="flex items-center gap-3 text-lg font-serif text-deep-green">
+                <UtensilsCrossed className="w-5 h-5 text-gold" /> Wedding Feast & Menu
+              </h2>
+              <button
+                onClick={() => {
+                  const newMenu = [...(config.menu || [])];
+                  newMenu.push({
+                    id: `cat-${Date.now()}`,
+                    title: "New Category",
+                    items: [{ name: "New Item", description: "", tag: "Veg" }]
+                  });
+                  updateConfig('menu', newMenu);
+                }}
+                className="px-4 py-2 bg-gold/10 text-gold rounded-xl hover:bg-gold hover:text-white transition-all text-[10px] font-bold uppercase tracking-widest flex items-center gap-2"
+              >
+                <Plus className="w-4 h-4" /> Add Category
+              </button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              {(config.menu || []).map((category, catIdx) => (
+                <div key={category.id} className="p-6 bg-neutral-50 rounded-[1.5rem] border border-neutral-100 space-y-4 relative group">
+                  <button
+                    onClick={() => {
+                      const newMenu = config.menu.filter((_, i) => i !== catIdx);
+                      updateConfig('menu', newMenu);
+                    }}
+                    className="absolute top-4 right-4 p-2 bg-red-50 text-red-400 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-500 hover:text-white"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+
+                  <input
+                    type="text"
+                    value={category.title}
+                    onChange={(e) => {
+                      const newMenu = [...config.menu];
+                      newMenu[catIdx].title = e.target.value;
+                      updateConfig('menu', newMenu);
+                    }}
+                    className="font-serif text-deep-green font-bold text-lg bg-transparent border-none outline-none focus:ring-0 w-3/4 p-0"
+                    placeholder="Category Title (e.g. Starters)"
+                  />
+
+                  <div className="space-y-4 pt-4">
+                    {category.items.map((item, itemIdx) => (
+                      <div key={itemIdx} className="bg-white p-4 rounded-xl border border-gold/5 space-y-2 relative group/item">
+                        <div className="flex items-center gap-2">
+                          <input
+                            type="text"
+                            value={item.name}
+                            onChange={(e) => {
+                              const newMenu = [...config.menu];
+                              newMenu[catIdx].items[itemIdx].name = e.target.value;
+                              updateConfig('menu', newMenu);
+                            }}
+                            className="flex-1 text-sm font-bold bg-transparent outline-none border-b border-transparent focus:border-gold/20"
+                            placeholder="Item Name"
+                          />
+                          <select
+                            value={item.tag}
+                            onChange={(e) => {
+                              const newMenu = [...config.menu];
+                              newMenu[catIdx].items[itemIdx].tag = e.target.value;
+                              updateConfig('menu', newMenu);
+                            }}
+                            className="text-[9px] uppercase font-bold bg-gold/10 text-gold px-2 py-1 rounded-lg outline-none"
+                          >
+                            <option value="Veg">Veg</option>
+                            <option value="Non-Veg">Non-Veg</option>
+                            <option value="Chef Special">Special</option>
+                          </select>
+                          <button
+                            onClick={() => {
+                              const newMenu = [...config.menu];
+                              newMenu[catIdx].items = newMenu[catIdx].items.filter((_, i) => i !== itemIdx);
+                              updateConfig('menu', newMenu);
+                            }}
+                            className="p-1 text-red-300 hover:text-red-500 opacity-0 group-item/item:opacity-100 transition-opacity"
+                          >
+                            <X className="w-3 h-3" />
+                          </button>
+                        </div>
+                        <input
+                          type="text"
+                          value={item.description}
+                          onChange={(e) => {
+                            const newMenu = [...config.menu];
+                            newMenu[catIdx].items[itemIdx].description = e.target.value;
+                            updateConfig('menu', newMenu);
+                          }}
+                          className="w-full text-[10px] text-neutral-400 bg-transparent outline-none italic"
+                          placeholder="Short description..."
+                        />
+                      </div>
+                    ))}
+                    <button
+                      onClick={() => {
+                        const newMenu = [...config.menu];
+                        newMenu[catIdx].items.push({ name: "New Item", description: "", tag: "Veg" });
+                        updateConfig('menu', newMenu);
+                      }}
+                      className="w-full py-2 border border-dashed border-gold/20 rounded-xl text-[10px] text-gold/60 font-bold uppercase tracking-widest hover:bg-gold/5 transition-all"
+                    >
+                      + Add Item
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </section>
+
           {/* Section 7: Invitation Tiers (Monetization Strategy) */}
           <section className="col-span-1 md:col-span-2 space-y-8 bg-white p-10 rounded-[2.5rem] shadow-xl border-2 border-gold/20 relative overflow-hidden">
             <div className="absolute top-0 right-0 p-4 bg-gold text-white text-[10px] font-bold uppercase tracking-widest rounded-bl-2xl">
@@ -537,6 +664,204 @@ const SetupDashboard = ({ config, updateConfig, isAdmin, saveToCloud, isSyncing,
             </div>
           </section>
         </div>
+
+          {/* Section: Personalized Guest Links */}
+          <section className="col-span-1 md:col-span-2 space-y-6 bg-white p-8 rounded-[2rem] shadow-sm border border-gold/5">
+            <h2 className="flex items-center gap-3 text-lg font-serif text-deep-green border-b border-gold/10 pb-4">
+              <Sparkles className="w-5 h-5 text-gold" /> Personalized Guest Links
+            </h2>
+            <p className="text-[10px] text-neutral-400 uppercase tracking-widest font-bold leading-relaxed">
+              Generate unique links for each guest to show their name at the top of the invitation.
+            </p>
+            
+            <div className="flex flex-col md:flex-row gap-4">
+              <div className="flex-1">
+                <label className="block text-[10px] uppercase tracking-widest text-neutral-400 mb-2 font-bold ml-1">Guest Name</label>
+                <input
+                  type="text"
+                  id="guest-name-input"
+                  className="w-full p-4 bg-neutral-50 border border-neutral-100 rounded-2xl focus:ring-2 focus:ring-gold/20 outline-none transition-all font-serif"
+                  placeholder="e.g. Hasibul Pailan"
+                />
+              </div>
+              <div className="flex items-end">
+                <button
+                  onClick={() => {
+                    const guestName = document.getElementById('guest-name-input').value;
+                    if (!guestName) {
+                      alert("Please enter a guest name first.");
+                      return;
+                    }
+                    const baseUrl = window.location.origin;
+                    const finalLink = `${baseUrl}/?id=${config.weddingId}&mode=guest&guest=${encodeURIComponent(guestName)}`;
+                    navigator.clipboard.writeText(finalLink);
+                    alert(`Personalized link for "${guestName}" copied to clipboard!`);
+                  }}
+                  className="w-full md:w-auto px-8 py-4 bg-gold text-white rounded-2xl font-bold text-xs uppercase tracking-widest hover:scale-105 transition-all flex items-center gap-2 justify-center"
+                >
+                  <Copy className="w-4 h-4" /> Copy Personalized Link
+                </button>
+              </div>
+            </div>
+            <p className="text-[9px] text-neutral-400 italic">
+              Example: {window.location.origin}/?id={config.weddingId}&mode=guest&guest=Name
+            </p>
+          </section>
+
+
+        {/* Section 7.5: Social Sharing Preview */}
+        <section className="col-span-1 md:col-span-2 space-y-8 p-10 bg-white rounded-[2.5rem] shadow-xl border border-neutral-100 relative overflow-hidden">
+          <div className="absolute top-0 right-0 p-8 opacity-5 pointer-events-none">
+            <Share2 className="w-32 h-32 text-green-500" />
+          </div>
+
+          <div className="relative z-10">
+            <div className="flex items-center gap-4 mb-8">
+              <div className="w-14 h-14 bg-green-500/10 rounded-2xl flex items-center justify-center text-green-600">
+                <Share2 className="w-7 h-7" />
+              </div>
+              <div>
+                <h2 className="text-3xl font-serif italic">Social Sharing Preview</h2>
+                <p className="text-[10px] text-neutral-400 uppercase tracking-[0.3em] font-bold">How your link looks on WhatsApp & Social Media</p>
+                <p className="text-[9px] text-amber-600 font-medium mt-1">⚠️ Note: Preview will work on WhatsApp/FB only after you publish the site to a live URL (Vercel/Hosting).</p>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+              {/* WhatsApp Mockup */}
+              <div className="space-y-4">
+                <p className="text-[11px] font-bold text-neutral-400 uppercase tracking-widest ml-2 flex items-center gap-2">
+                  <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" /> WhatsApp Link Preview
+                </p>
+                <div className="bg-[#E5DDD5] p-8 rounded-[2.5rem] shadow-inner relative overflow-hidden border border-neutral-200">
+                  <div className="bg-white p-3 rounded-2xl shadow-lg border-l-4 border-[#25D366] max-w-[320px] transition-transform hover:scale-[1.02] cursor-pointer">
+                    <div className="bg-neutral-100 aspect-video rounded-xl mb-3 overflow-hidden border border-neutral-100">
+                        <img 
+                          src={config.couple.coverPhoto || "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=80&w=2069&auto=format&fit=crop"} 
+                          className="w-full h-full object-cover" 
+                          alt="Preview" 
+                        />
+                    </div>
+                    <div className="px-1">
+                      <h4 className="text-[13px] font-bold text-neutral-800 mb-1 leading-tight line-clamp-1">Wedding Invitation: {config.couple.name1} & {config.couple.name2} 💍</h4>
+                      <p className="text-[11px] text-neutral-500 line-clamp-2 leading-relaxed mb-2">You are cordially invited to celebrate our wedding on {config.date}. Click to see the cinematic invitation!</p>
+                      <p className="text-[10px] text-blue-500 font-medium truncate">{window.location.origin}/?id={config.weddingId}</p>
+                    </div>
+                  </div>
+                  <div className="mt-4 text-[10px] text-neutral-400 text-right font-medium">Just now ✓✓</div>
+                </div>
+
+                {/* Facebook Mockup */}
+                <p className="text-[11px] font-bold text-neutral-400 uppercase tracking-widest ml-2 mt-8 flex items-center gap-2">
+                  <span className="w-2 h-2 bg-blue-600 rounded-full animate-pulse" /> Facebook Post Preview
+                </p>
+                <div className="bg-white p-6 rounded-[2.5rem] shadow-xl border border-neutral-100 relative overflow-hidden group">
+                   <div className="flex items-center gap-2 mb-3">
+                      <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
+                         <Share2 className="w-4 h-4" />
+                      </div>
+                      <div>
+                         <p className="text-[11px] font-bold text-neutral-800">Wedding Invitation Builder</p>
+                         <p className="text-[9px] text-neutral-400">Sponsored · 🌍</p>
+                      </div>
+                   </div>
+                   <p className="text-[11px] text-neutral-600 mb-3 leading-relaxed">
+                      Experience the most luxurious wedding invitation of the year! 💍✨
+                   </p>
+                   <div className="rounded-xl overflow-hidden border border-neutral-100 bg-neutral-50 aspect-video mb-2">
+                      <img 
+                        src={config.couple.coverPhoto || "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=80&w=2069&auto=format&fit=crop"} 
+                        className="w-full h-full object-cover" 
+                        alt="FB Preview" 
+                      />
+                   </div>
+                   <div className="bg-neutral-50 p-3 rounded-b-xl border-t border-neutral-100">
+                      <p className="text-[9px] text-neutral-400 uppercase tracking-widest font-bold mb-1">WEDDING-WEB.APP</p>
+                      <h4 className="text-[13px] font-bold text-neutral-800">Join {config.couple.name1} & {config.couple.name2}'s Wedding</h4>
+                   </div>
+                </div>
+              </div>
+
+              {/* Share Tools */}
+              <div className="space-y-8">
+                <div className="space-y-3">
+                  <h3 className="text-2xl font-serif text-neutral-800">Invite with Style</h3>
+                  <p className="text-xs text-neutral-500 leading-relaxed max-w-sm">
+                    Generate a perfectly formatted invitation message. When you share this link, guests will see the cinematic preview above.
+                  </p>
+                </div>
+
+                <div className="bg-neutral-50 p-8 rounded-[2.5rem] border border-neutral-100 space-y-6">
+                  <div>
+                    <p className="text-[10px] text-neutral-400 font-bold uppercase tracking-widest mb-3">One-Click Share:</p>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <button
+                        onClick={() => {
+                          const message = `Hi! We are happy to invite you to our wedding. Please check our digital invitation here: ${window.location.origin}/?id=${config.weddingId}&mode=guest`;
+                          const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+                          window.open(whatsappUrl, '_blank');
+                        }}
+                        className="py-4 bg-[#25D366] text-white rounded-2xl font-bold text-[10px] uppercase tracking-widest hover:scale-[1.03] transition-all flex items-center gap-2 justify-center shadow-lg shadow-green-500/20 group"
+                      >
+                        <Share2 className="w-4 h-4" /> WhatsApp
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          const link = `${window.location.origin}/?id=${config.weddingId}&mode=guest`;
+                          const fbUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(link)}`;
+                          window.open(fbUrl, '_blank');
+                        }}
+                        className="py-4 bg-[#1877F2] text-white rounded-2xl font-bold text-[10px] uppercase tracking-widest hover:scale-[1.03] transition-all flex items-center gap-2 justify-center shadow-lg shadow-blue-500/20"
+                      >
+                        <Share2 className="w-4 h-4" /> Facebook
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          const link = `${window.location.origin}/?id=${config.weddingId}&mode=guest`;
+                          navigator.clipboard.writeText(link);
+                          alert("Link copied for Instagram Bio/Story!");
+                        }}
+                        className="py-4 bg-gradient-to-tr from-[#f9ce34] via-[#ee2a7b] to-[#6228d7] text-white rounded-2xl font-bold text-[10px] uppercase tracking-widest hover:scale-[1.03] transition-all flex items-center gap-2 justify-center shadow-lg shadow-purple-500/20"
+                      >
+                        <Share2 className="w-4 h-4" /> Instagram
+                      </button>
+
+                      <button
+                        onClick={() => {
+                          const link = `${window.location.origin}/?id=${config.weddingId}&mode=guest`;
+                          navigator.clipboard.writeText(link);
+                          alert("Invitation link copied to clipboard!");
+                        }}
+                        className="py-4 bg-neutral-800 text-white rounded-2xl font-bold text-[10px] uppercase tracking-widest hover:scale-[1.03] transition-all flex items-center gap-2 justify-center"
+                      >
+                        <Copy className="w-4 h-4" /> Copy Link
+                      </button>
+                    </div>
+                  </div>
+
+                  <div className="pt-6 border-t border-neutral-200">
+                    <p className="text-[10px] text-neutral-400 font-bold uppercase tracking-widest mb-3">Personalized Message Template:</p>
+                    <div className="p-4 bg-white rounded-2xl border border-neutral-100 text-[11px] text-neutral-600 italic leading-relaxed relative group">
+                      "{config.couple.name1} & {config.couple.name2}'s Wedding Invitation. Tap to open!"
+                      <button 
+                         onClick={() => {
+                           const link = `${window.location.origin}/?id=${config.weddingId}&mode=guest`;
+                           navigator.clipboard.writeText(link);
+                           alert("Link copied!");
+                         }}
+                         className="absolute top-2 right-2 p-2 bg-neutral-50 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <Copy className="w-3 h-3" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
 
         {/* Section 8: Share & Publish */}
         <section className={`col-span-1 md:col-span-2 space-y-8 p-10 rounded-[2.5rem] shadow-2xl relative overflow-hidden text-white transition-all duration-500 ${(isAdmin || (config.couple.name1 === config.masterName1 && config.couple.name2 === config.masterName2))
