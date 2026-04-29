@@ -1,10 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Share2, X, MessageCircle, Copy, Check } from 'lucide-react';
+import { Share2, X, MessageCircle, Copy, Check, Download, Image as ImageIcon } from 'lucide-react';
+import html2canvas from 'html2canvas';
 
 const GuestShareTool = ({ coupleNames, config }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [isCapturing, setIsCapturing] = useState(false);
+  const cardRef = React.useRef(null);
 
   useEffect(() => {
     if (isOpen) {
@@ -17,7 +20,29 @@ const GuestShareTool = ({ coupleNames, config }) => {
     };
   }, [isOpen]);
 
-  const invitationLink = window.location.href.split('&guest=')[0].split('?guest=')[0]; // Clean link for general sharing
+  const invitationLink = window.location.href.split('&guest=')[0].split('?guest=')[0];
+
+  const handleDownload = async () => {
+    if (!cardRef.current) return;
+    setIsCapturing(true);
+    try {
+      const canvas = await html2canvas(cardRef.current, {
+        useCORS: true,
+        scale: 2,
+        backgroundColor: '#FDFBF7'
+      });
+      const image = canvas.toDataURL('image/jpeg', 0.9);
+      const link = document.createElement('a');
+      link.href = image;
+      link.download = `${coupleNames.replace(/ & /g, '_')}_Wedding_Invitation.jpg`;
+      link.click();
+      alert("Invitation Card Downloaded! Now you can share this image on your WhatsApp Status or Instagram Story. ✨");
+    } catch (err) {
+      console.error("Failed to capture card:", err);
+      alert("Could not generate image. Please take a screenshot of the card instead!");
+    }
+    setIsCapturing(false);
+  };
 
   const handleCopy = () => {
     navigator.clipboard.writeText(invitationLink);
@@ -132,27 +157,45 @@ const GuestShareTool = ({ coupleNames, config }) => {
 
               <div className="space-y-4">
                 <p className="text-[10px] text-neutral-400 font-bold uppercase tracking-widest text-center">Your Personal Digital Card:</p>
-                <div className="relative group cursor-pointer overflow-hidden rounded-[2rem] border border-gold/20 shadow-xl bg-white p-4">
-                  <div className="aspect-[4/5] relative rounded-2xl overflow-hidden mb-4">
+                <div 
+                  ref={cardRef}
+                  className="relative overflow-hidden rounded-[2.5rem] border-8 border-gold/10 shadow-2xl bg-cream p-8 text-center"
+                  style={{ width: '100%', maxWidth: '320px', margin: '0 auto' }}
+                >
+                  <div className="absolute inset-0 border-[1px] border-gold/20 m-2 pointer-events-none" />
+                  
+                  <p className="text-[10px] uppercase tracking-[0.5em] text-gold mb-6 font-cinzel">Joining the Celebration</p>
+                  
+                  <div className="aspect-[4/5] relative rounded-full overflow-hidden mb-8 border-4 border-white shadow-xl mx-auto w-48">
                      <img 
                        src={config?.couple?.coverPhoto || "https://images.unsplash.com/photo-1519741497674-611481863552?q=80&w=2070&auto=format&fit=crop"} 
                        className="w-full h-full object-cover" 
                        alt="Wedding Preview" 
                      />
-                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent flex flex-col justify-end p-6 text-white">
-                        <p className="text-[8px] uppercase tracking-[0.4em] mb-2 text-gold/80">Joining the Celebration</p>
-                        <h3 className="text-2xl font-serif italic mb-1">{coupleNames}</h3>
-                        <p className="text-[10px] opacity-70 tracking-widest">W E D D I N G</p>
-                     </div>
                   </div>
+
+                  <h3 className="text-4xl font-pinyon text-deep-green mb-4">{coupleNames}</h3>
+                  <div className="w-12 h-[1px] bg-gold/30 mx-auto mb-4" />
+                  <p className="text-[12px] text-neutral-500 tracking-[0.2em] font-serif italic mb-2">Wedding Celebration</p>
+                  <p className="text-[10px] text-gold/60 tracking-widest font-bold uppercase">Save The Date</p>
+                </div>
+
+                <div className="flex flex-col gap-3 pt-4">
                   <button
-                    onClick={() => alert("Tip: Take a screenshot of this card to share on your Instagram Story or WhatsApp Status! ✨")}
-                    className="w-full py-4 bg-gold text-white rounded-2xl flex items-center justify-center gap-3 hover:bg-gold/90 transition-all active:scale-95 shadow-lg shadow-gold/20"
+                    onClick={handleDownload}
+                    disabled={isCapturing}
+                    className="w-full py-5 bg-gold text-white rounded-2xl flex items-center justify-center gap-3 hover:bg-gold/90 transition-all active:scale-95 shadow-xl shadow-gold/20 disabled:opacity-50"
                   >
-                    <Share2 className="w-4 h-4" />
-                    <span className="text-xs font-bold uppercase tracking-widest">Share as Image</span>
+                    {isCapturing ? (
+                      <span className="animate-pulse">Generating Card...</span>
+                    ) : (
+                      <>
+                        <Download className="w-5 h-5" />
+                        <span className="text-xs font-bold uppercase tracking-widest">Download & Share Image</span>
+                      </>
+                    )}
                   </button>
-                  <p className="text-[8px] text-neutral-400 text-center mt-3 italic font-medium">Screenshot this card to share without a link!</p>
+                  <p className="text-[8px] text-neutral-400 text-center italic font-medium">Download this premium card to share as an image on your Status/Story!</p>
                 </div>
               </div>
 
