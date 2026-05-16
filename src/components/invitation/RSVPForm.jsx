@@ -1,8 +1,10 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { CheckCircle, Loader2 } from 'lucide-react';
+import { format, parseISO, isValid } from 'date-fns';
+import { bn } from 'date-fns/locale';
 
-const RSVPForm = ({ config }) => {
+const RSVPForm = ({ config, t, lang }) => {
   const [formData, setFormData] = useState({ name: '', events: [] });
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -44,7 +46,7 @@ const RSVPForm = ({ config }) => {
            transition={{ delay: 0.5 }}
            className="text-5xl font-cursive italic text-gold mb-6"
         >
-          Thank you for confirming!
+          {t.thankYou || 'Thank you for confirming!'}
         </motion.h2>
         
         <motion.p 
@@ -53,7 +55,7 @@ const RSVPForm = ({ config }) => {
            transition={{ delay: 0.8 }}
            className="text-[10px] uppercase tracking-[0.4em] font-serif opacity-70 mb-2"
         >
-           We are delighted to have you with us
+           {t.delightedToHaveYou || 'We are delighted to have you with us'}
         </motion.p>
         
         <motion.div 
@@ -69,7 +71,7 @@ const RSVPForm = ({ config }) => {
            transition={{ delay: 1.2 }}
            className="text-3xl font-cursive italic text-gold-light"
         >
-           {config.couple.name1} & {config.couple.name2}
+           {config.couple.name1} {t.and} {config.couple.name2}
         </motion.h3>
       </section>
     );
@@ -85,10 +87,10 @@ const RSVPForm = ({ config }) => {
               viewport={{ once: true }}
               className="text-6xl font-cursive text-gold mb-4"
            >
-              RSVP
+              {t.rsvp}
            </motion.h2>
            <div className="w-12 h-[1px] bg-gold/30 mx-auto mb-4" />
-           <p className="text-[10px] uppercase tracking-[0.4em] text-deep-green/60">Kindly respond by May 15th</p>
+           <p className="text-[10px] uppercase tracking-[0.4em] text-deep-green/60">{t.rsvpBy || 'Kindly respond by May 15th'}</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-12">
@@ -96,7 +98,7 @@ const RSVPForm = ({ config }) => {
               <input 
                 required
                 type="text" 
-                placeholder="Enter Your Full Name"
+                placeholder={t.fullName || 'Enter Your Full Name'}
                 value={formData.name}
                 onChange={(e) => setFormData({...formData, name: e.target.value})}
                 className="w-full bg-transparent border-b border-gold/20 pb-4 font-serif text-deep-green placeholder:text-deep-green/20 outline-none focus:border-gold transition-all duration-500 text-lg"
@@ -105,7 +107,7 @@ const RSVPForm = ({ config }) => {
            </div>
 
            <div className="space-y-6">
-              <p className="text-[9px] uppercase tracking-[0.3em] font-bold text-deep-green/40 mb-2">Select the events you will attend</p>
+              <p className="text-[9px] uppercase tracking-[0.3em] font-bold text-deep-green/40 mb-2">{t.rsvpSubheading || 'Select the events you will attend'}</p>
               <div className="grid grid-cols-1 gap-4">
                 {config.events.filter(e => e.enabled).map(event => (
                   <label 
@@ -114,7 +116,13 @@ const RSVPForm = ({ config }) => {
                   >
                      <div className="flex flex-col">
                         <span className="text-deep-green font-serif italic text-xl">{event.title}</span>
-                        <span className="text-[9px] uppercase tracking-widest opacity-40">{event.date}</span>
+                        <span className="text-[9px] uppercase tracking-widest opacity-40">
+                           {lang === 'bn' 
+                             ? toBengaliDigits(isValid(parseISO(event.date)) 
+                                 ? format(parseISO(event.date), 'd MMMM', { locale: bn }) 
+                                 : event.date.replace('May', 'মে').replace('June', 'জুন'))
+                             : event.date}
+                        </span>
                      </div>
                      <input 
                         type="checkbox"
@@ -140,9 +148,9 @@ const RSVPForm = ({ config }) => {
                    {isLoading ? (
                      <>
                         <Loader2 className="w-5 h-5 animate-spin" />
-                        Processing...
+                        {t.sending || 'Processing...'}
                      </>
-                   ) : "Confirm Invitation"}
+                   ) : (t.submitRSVP || "Confirm Invitation")}
                 </span>
              </motion.button>
            </div>

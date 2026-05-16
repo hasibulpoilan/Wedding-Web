@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 
-const Envelope = ({ initials, onOpen }) => {
+const Envelope = ({ initials, onOpen, t }) => {
   const [isBreaking, setIsBreaking] = useState(false);
   const [isUnfolding, setIsUnfolding] = useState(false);
 
@@ -109,7 +109,7 @@ const Envelope = ({ initials, onOpen }) => {
           animate={{ opacity: 1 }}
           className="absolute bottom-20 text-white font-montserrat tracking-[0.3em] text-[10px] uppercase"
         >
-          Tap the seal to open
+          {t.tapSeal || 'Tap the seal to open'}
         </motion.div>
       )}
     </motion.div>

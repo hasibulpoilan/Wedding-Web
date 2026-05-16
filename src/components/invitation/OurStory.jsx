@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-const OurStory = ({ stories }) => {
+const OurStory = ({ stories, t }) => {
   return (
     <section className="py-32 px-6 bg-[#FAF9F6] overflow-hidden relative min-h-[800px] md:min-h-screen">
       {/* Cinematic Background Elements */}
@@ -11,14 +11,14 @@ const OurStory = ({ stories }) => {
           transition={{ duration: 10, repeat: Infinity }}
           className="absolute -top-20 -left-20 text-[15rem] font-cursive text-gold select-none"
         >
-          Love
+          {t.love || 'Love'}
         </motion.div>
         <motion.div 
           animate={{ y: [0, 20, 0], opacity: [0.03, 0.05, 0.03] }}
           transition={{ duration: 12, repeat: Infinity }}
           className="absolute -bottom-20 -right-20 text-[15rem] font-cursive text-gold select-none"
         >
-          Always
+          {t.always || 'Always'}
         </motion.div>
       </div>
 
@@ -28,7 +28,7 @@ const OurStory = ({ stories }) => {
           whileInView={{ opacity: 1 }}
           className="text-[10px] uppercase tracking-[0.5em] text-gold font-bold block mb-4"
         >
-          A Glimpse of Our Journey
+          {t.glimpseJourney || 'A Glimpse of Our Journey'}
         </motion.span>
         <motion.h2 
           initial={{ opacity: 0, y: 20 }}
@@ -36,7 +36,7 @@ const OurStory = ({ stories }) => {
           viewport={{ once: true }}
           className="text-6xl font-cursive text-deep-green mb-6"
         >
-          Our Story
+          {t.ourStory}
         </motion.h2>
         <div className="w-24 h-[1px] bg-gold/30 mx-auto" />
       </div>

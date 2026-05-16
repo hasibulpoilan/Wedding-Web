@@ -98,7 +98,7 @@ const Particles = () => {
   );
 };
 
-const SplashIntro = ({ guestName, config }) => {
+const SplashIntro = ({ guestName, config, t }) => {
   return (
     <motion.div
       initial={{ opacity: 0 }}
@@ -137,7 +137,7 @@ const SplashIntro = ({ guestName, config }) => {
         {guestName ? (
           <>
             <span className="font-cinzel text-deep-green/60 tracking-[0.4em] uppercase text-xs md:text-sm mb-6 block">
-              A Special Welcome
+              {t.welcomeGuest}
             </span>
             <h1 className="font-pinyon text-7xl md:text-9xl text-deep-green drop-shadow-[0_2px_10px_rgba(0,0,0,0.05)]">
               {guestName}
@@ -146,10 +146,10 @@ const SplashIntro = ({ guestName, config }) => {
         ) : (
           <>
             <span className="font-cinzel text-deep-green/60 tracking-[0.4em] uppercase text-xs md:text-sm mb-6 block">
-              A Wonderful Beginning
+              {t.wonderfulBeginning || 'A Wonderful Beginning'}
             </span>
             <h1 className="font-pinyon text-7xl md:text-9xl text-deep-green drop-shadow-[0_2px_10px_rgba(0,0,0,0.05)]">
-              {config.couple.name1} & {config.couple.name2}
+              {config.couple.name1} {t.and} {config.couple.name2}
             </h1>
           </>
         )}

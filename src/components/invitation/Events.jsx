@@ -1,8 +1,11 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { MapPin, Clock, ExternalLink } from 'lucide-react';
+import { format, parseISO, isValid } from 'date-fns';
+import { bn } from 'date-fns/locale';
+import { toBengaliDigits } from '../../lib/translations';
 
-const Events = ({ events }) => {
+const Events = ({ events, t, lang }) => {
   const activeEvents = events.filter(e => e.enabled);
 
   const openInGoogleMaps = (event) => {
@@ -10,7 +13,7 @@ const Events = ({ events }) => {
       window.open(event.venueUrl, '_blank');
       return;
     }
-    const encodedLocation = encodeURIComponent(event.venueName || event.venue || "The Grand Palace, Udaipur");
+    const encodedLocation = encodeURIComponent(event.venueName || event.venue || t.defaultVenue);
     window.open(`https://www.google.com/maps/search/?api=1&query=${encodedLocation}`, '_blank');
   };
 
@@ -28,7 +31,7 @@ const Events = ({ events }) => {
           whileInView={{ opacity: 1 }}
           className="text-xs uppercase tracking-[0.6em] text-gold font-bold block mb-4 font-montserrat"
         >
-          Join Us
+          {t.joinUs || 'Join Us'}
         </motion.span>
         <motion.h2 
           initial={{ opacity: 0, y: 20 }}
@@ -36,7 +39,7 @@ const Events = ({ events }) => {
           viewport={{ once: true }}
           className="text-4xl md:text-5xl font-playfair text-deep-green tracking-wide mb-6 italic"
         >
-          Wedding Events
+          {t.events}
         </motion.h2>
         <div className="w-16 h-[1px] bg-gold mx-auto" />
       </div>
@@ -63,9 +66,15 @@ const Events = ({ events }) => {
               <div className="absolute bottom-8 left-8 text-white text-left">
                 <h3 className="text-4xl font-pinyon text-gold-light mb-2">{event.title}</h3>
                 <div className="flex items-center gap-3 text-[10px] tracking-[0.2em] uppercase opacity-90 font-montserrat">
-                   <span className="text-gold font-bold">Vibrant</span>
+                   <span className="text-gold font-bold">{t.vibrant || 'Vibrant'}</span>
                    <span className="w-1 h-1 bg-white/40 rounded-full" />
-                   <span>{event.date}</span>
+                   <span>
+                     {lang === 'bn' 
+                       ? toBengaliDigits(isValid(parseISO(event.date)) 
+                           ? format(parseISO(event.date), 'd MMMM', { locale: bn }) 
+                           : event.date.replace('January', 'জানুয়ারি').replace('February', 'ফেব্রুয়ারি').replace('March', 'মার্চ').replace('April', 'এপ্রিল').replace('May', 'মে').replace('June', 'জুন').replace('July', 'জুলাই').replace('August', 'আগস্ট').replace('September', 'সেপ্টেম্বর').replace('October', 'অক্টোবর').replace('November', 'নভেম্বর').replace('December', 'ডিসেম্বর'))
+                       : event.date}
+                   </span>
                 </div>
               </div>
             </div>
@@ -78,7 +87,7 @@ const Events = ({ events }) => {
                         <Clock className="w-4 h-4 text-gold" />
                      </div>
                      <div className="text-left">
-                        <p className="text-[9px] uppercase tracking-widest text-neutral-400 font-bold mb-1">Time</p>
+                        <p className="text-[9px] uppercase tracking-widest text-neutral-400 font-bold mb-1">{t.time}</p>
                         <p className="text-sm font-medium text-deep-green">{event.time}</p>
                      </div>
                   </div>
@@ -88,9 +97,9 @@ const Events = ({ events }) => {
                         <MapPin className="w-4 h-4 text-gold" />
                      </div>
                       <div className="text-left">
-                        <p className="text-[9px] uppercase tracking-widest text-neutral-400 font-bold mb-1">Venue</p>
+                        <p className="text-[9px] uppercase tracking-widest text-neutral-400 font-bold mb-1">{t.venue}</p>
                         <p className="text-sm font-medium text-deep-green leading-relaxed">
-                          {event.venueName || "The Grand Palace"}<br/>
+                          {event.venueName || t.defaultVenue.split(',')[0]}<br/>
                         </p>
                       </div>
                   </div>
@@ -103,7 +112,7 @@ const Events = ({ events }) => {
                     onClick={() => openInGoogleMaps(event)}
                     className="w-full py-4 bg-neutral-900 text-cream text-[11px] uppercase tracking-[0.3em] font-bold rounded-2xl hover:bg-gold transition-all duration-500 shadow-xl flex items-center justify-center gap-3 group/btn font-montserrat"
                   >
-                     <span>View on Map</span>
+                     <span>{t.viewOnMap || 'View on Map'}</span>
                      <ExternalLink className="w-3 h-3 opacity-50 group-hover/btn:opacity-100 transition-opacity" />
                   </motion.button>
                 </div>

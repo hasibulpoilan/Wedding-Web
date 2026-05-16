@@ -1,8 +1,11 @@
 import React, { useRef, useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import confetti from 'canvas-confetti';
+import { format, parseISO, isValid } from 'date-fns';
+import { bn } from 'date-fns/locale';
+import { toBengaliDigits } from '../../lib/translations';
 
-const ScratchCard = ({ revealContent, revealDate }) => {
+const ScratchCard = ({ revealContent, revealDate, t, lang }) => {
   const canvasRef = useRef(null);
   const [isRevealed, setIsRevealed] = useState(false);
   const [isScratching, setIsScratching] = useState(false);
@@ -37,7 +40,7 @@ const ScratchCard = ({ revealContent, revealDate }) => {
     ctx.fillStyle = '#8B0000';
     ctx.font = 'bold 10px serif';
     ctx.textAlign = 'center';
-    ctx.fillText('SCRATCH TO REVEAL', width / 2, height / 2 + 5);
+    ctx.fillText(t.scratchToRevealHeader || 'SCRATCH TO REVEAL', width / 2, height / 2 + 5);
 
     ctx.globalCompositeOperation = 'destination-out';
   }, []);
@@ -117,10 +120,14 @@ const ScratchCard = ({ revealContent, revealDate }) => {
           )}
         </AnimatePresence>
 
-        <p className="text-[10px] uppercase tracking-[0.4em] text-gold mb-3 font-bold">Save the Date</p>
-        <h3 className="font-cursive text-4xl text-deep-green italic">{revealDate}</h3>
+        <p className="text-[10px] uppercase tracking-[0.4em] text-gold mb-3 font-bold">{t.saveTheDate}</p>
+        <h3 className="font-cursive text-4xl text-deep-green italic">
+          {lang === 'bn' 
+            ? toBengaliDigits(isValid(parseISO(revealDate)) ? format(parseISO(revealDate), 'd MMMM, yyyy', { locale: bn }) : revealDate)
+            : (isValid(parseISO(revealDate)) ? format(parseISO(revealDate), 'MMMM do, yyyy') : revealDate)}
+        </h3>
         <div className="w-8 h-[1px] bg-gold/20 my-4" />
-        <p className="text-[8px] uppercase tracking-widest text-deep-green/60">Udaipur, Rajasthan</p>
+        <p className="text-[8px] uppercase tracking-widest text-deep-green/60">{t.defaultVenue}</p>
       </motion.div>
 
       {/* Scratch Layer */}
@@ -145,7 +152,7 @@ const ScratchCard = ({ revealContent, revealDate }) => {
           transition={{ duration: 3, repeat: Infinity }}
           className="absolute -bottom-10 left-0 w-full text-center text-[9px] uppercase tracking-[0.3em] text-gold font-bold"
         >
-          Gently scratch to reveal
+          {t.scratchToReveal || 'Gently scratch to reveal'}
         </motion.div>
       )}
     </div>

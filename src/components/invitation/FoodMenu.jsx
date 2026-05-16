@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { UtensilsCrossed, Coffee, IceCream, Pizza } from 'lucide-react';
 
-const FoodMenu = ({ menu = [] }) => {
+const FoodMenu = ({ menu = [], t }) => {
   if (!menu || menu.length === 0) return null;
 
   return (
@@ -24,8 +24,8 @@ const FoodMenu = ({ menu = [] }) => {
           className="text-center mb-20"
         >
           <UtensilsCrossed className="w-12 h-12 text-gold/40 mx-auto mb-6" />
-          <span className="text-xs uppercase tracking-[0.5em] text-gold font-bold">The Wedding Feast</span>
-          <h2 className="text-5xl font-serif text-deep-green mt-4 italic">Culinary Delights</h2>
+          <span className="text-xs uppercase tracking-[0.5em] text-gold font-bold">{t.weddingFeast || 'The Wedding Feast'}</span>
+          <h2 className="text-5xl font-serif text-deep-green mt-4 italic">{t.culinaryDelights || 'Culinary Delights'}</h2>
           <div className="w-24 h-[1px] bg-gold/30 mx-auto mt-8" />
         </motion.div>
 
@@ -70,7 +70,7 @@ const FoodMenu = ({ menu = [] }) => {
           viewport={{ once: true }}
           className="mt-20 text-center"
         >
-          <p className="text-[11px] uppercase tracking-[0.3em] text-gold/60 font-bold mb-4">Bon Appétit</p>
+          <p className="text-[11px] uppercase tracking-[0.3em] text-gold/60 font-bold mb-4">{t.bonAppetit || 'Bon Appétit'}</p>
           <div className="inline-flex items-center gap-2">
              <div className="w-2 h-2 rounded-full bg-gold/20" />
              <div className="w-3 h-3 rounded-full bg-gold/40" />

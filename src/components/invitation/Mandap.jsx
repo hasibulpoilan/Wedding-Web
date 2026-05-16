@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion, useScroll, useTransform } from 'framer-motion';
 
-const Mandap = ({ isPlatinum }) => {
+const Mandap = ({ isPlatinum, t }) => {
   const { scrollYProgress } = useScroll();
   const yParallax = useTransform(scrollYProgress, [0, 1], [0, -150]);
 
@@ -39,8 +39,8 @@ const Mandap = ({ isPlatinum }) => {
                 className="absolute -inset-4 border border-gold/30 rounded-full border-dashed"
               />
               <div className="bg-cream/5 backdrop-blur-xl p-16 rounded-full border border-gold/20 shadow-[0_0_50px_rgba(197,160,89,0.1)]">
-                 <h2 className="text-5xl font-cursive text-gold italic mb-2 drop-shadow-lg">The Ceremony</h2>
-                 <p className="text-cream/70 text-[10px] uppercase tracking-[0.5em] font-serif">In the Presence of Divinity</p>
+                 <h2 className="text-5xl font-cursive text-gold italic mb-2 drop-shadow-lg">{t.ceremony}</h2>
+                 <p className="text-cream/70 text-[10px] uppercase tracking-[0.5em] font-serif">{t.presenceOfDivinity || 'In the Presence of Divinity'}</p>
               </div>
            </div>
            
@@ -50,7 +50,7 @@ const Mandap = ({ isPlatinum }) => {
              transition={{ delay: 0.5 }}
              className="text-gold/50 text-xs italic font-serif"
            >
-              “Together, we start a new chapter”
+              {t.newChapterQuote || '“Together, we start a new chapter”'}
            </motion.div>
         </motion.div>
       </div>

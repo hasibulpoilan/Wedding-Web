@@ -2,7 +2,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Heart, Home, Coffee, Gift, Copy, Check } from 'lucide-react';
 
-const ContributionFunds = ({ config }) => {
+const ContributionFunds = ({ config, t }) => {
   const [copied, setCopied] = React.useState(null);
   const activeFunds = config.funds?.filter(f => f.enabled) || [];
 
@@ -30,11 +30,11 @@ const ContributionFunds = ({ config }) => {
           whileInView={{ opacity: 1, y: 0 }}
           className="text-4xl md:text-5xl font-playfair text-deep-green mb-6 italic"
         >
-          Registry & Contributions
+          {t.giftRegistry || 'Registry & Contributions'}
         </motion.h2>
         <div className="w-16 h-[1px] bg-gold mx-auto mb-8" />
         <p className="text-sm font-serif text-neutral-500 max-w-xl mx-auto leading-relaxed">
-          Your presence at our wedding is the greatest gift of all. However, if you wish to honor us with a gift, a contribution towards our new journey would be warmly appreciated.
+          {t.registryMessage || 'Your presence at our wedding is the greatest gift of all. However, if you wish to honor us with a gift, a contribution towards our new journey would be warmly appreciated.'}
         </p>
       </div>
 
@@ -50,7 +50,7 @@ const ContributionFunds = ({ config }) => {
             <div className="w-16 h-16 bg-gold/5 rounded-full flex items-center justify-center text-gold mb-6 group-hover:bg-gold group-hover:text-white transition-colors duration-500">
               {getIcon(fund.title)}
             </div>
-            <h3 className="text-xl font-playfair text-deep-green mb-4">{fund.title}</h3>
+            <h3 className="text-xl font-playfair text-deep-green mb-4">{t[fund.title] || fund.title}</h3>
             <p className="text-xs font-serif text-neutral-400 mb-8 leading-relaxed italic">
               {fund.description}
             </p>
@@ -61,20 +61,20 @@ const ContributionFunds = ({ config }) => {
                   element?.scrollIntoView({ behavior: 'smooth' });
                }}
             >
-              Contribute
+              {t.contribute || 'Contribute'}
             </button>
           </motion.div>
         ))}
       </div>
 
       <div id="payment-details" className="max-w-2xl mx-auto bg-white p-12 rounded-[3rem] shadow-2xl border border-gold/10 text-center">
-        <h3 className="text-2xl font-playfair text-deep-green mb-8">Payment Details</h3>
+        <h3 className="text-2xl font-playfair text-deep-green mb-8">{t.paymentDetails || 'Payment Details'}</h3>
         
         <div className="space-y-6">
           {config.couple.upi && (
             <div className="flex items-center justify-between p-6 bg-stone-50 rounded-2xl border border-dashed border-gold/30">
               <div className="text-left">
-                <p className="text-[10px] uppercase tracking-widest text-neutral-400 font-bold mb-1">UPI ID</p>
+                <p className="text-[10px] uppercase tracking-widest text-neutral-400 font-bold mb-1">{t.upiId || 'UPI ID'}</p>
                 <p className="text-sm font-medium text-deep-green">{config.couple.upi}</p>
               </div>
               <button 
@@ -89,13 +89,13 @@ const ContributionFunds = ({ config }) => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-left">
             {config.couple.accountNo && (
               <div className="p-6 bg-stone-50 rounded-2xl border border-stone-100">
-                <p className="text-[10px] uppercase tracking-widest text-neutral-400 font-bold mb-1">Account Number</p>
+                <p className="text-[10px] uppercase tracking-widest text-neutral-400 font-bold mb-1">{t.accountNumber || 'Account Number'}</p>
                 <p className="text-sm font-medium text-deep-green">{config.couple.accountNo}</p>
               </div>
             )}
             {config.couple.ifsc && (
               <div className="p-6 bg-stone-50 rounded-2xl border border-stone-100">
-                <p className="text-[10px] uppercase tracking-widest text-neutral-400 font-bold mb-1">IFSC Code</p>
+                <p className="text-[10px] uppercase tracking-widest text-neutral-400 font-bold mb-1">{t.ifscCode || 'IFSC Code'}</p>
                 <p className="text-sm font-medium text-deep-green">{config.couple.ifsc}</p>
               </div>
             )}
@@ -104,7 +104,7 @@ const ContributionFunds = ({ config }) => {
           {!config.couple.upi && !config.couple.accountNo && !config.couple.ifsc && (
             <div className="p-8 bg-stone-50 rounded-2xl border border-dashed border-stone-200">
               <p className="text-xs font-serif text-neutral-400 italic">
-                Payment details have not been provided yet. Please check back later or contact the couple directly.
+                {t.noPaymentDetails || 'Payment details have not been provided yet. Please check back later or contact the couple directly.'}
               </p>
             </div>
           )}

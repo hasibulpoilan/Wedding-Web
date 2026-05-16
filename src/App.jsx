@@ -5,6 +5,7 @@ import MarketingPreview from './components/builder/MarketingPreview';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Rocket, CloudSync, Save } from 'lucide-react';
 import { supabase } from './lib/supabase';
+import { getSharePhoto } from './lib/sharePhoto';
 
 const initialConfig = {
   weddingId: "tanmay-tanya",
@@ -26,9 +27,11 @@ const initialConfig = {
     { id: 3, caption: "Love in the Air", image: "https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?auto=format&fit=crop&q=80&w=800", rotation: -2 }
   ],
   events: [
+    { id: "haldi", title: "Haldi", time: "10:00 AM", date: "May 28", image: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&q=80&w=800", enabled: true, venueName: "The Grand Palace, Udaipur", venueUrl: "" },
     { id: "carnival", title: "Carnival", time: "11:00 AM", date: "May 29", image: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&q=80&w=800", enabled: true, venueName: "The Grand Palace, Udaipur", venueUrl: "" },
-    { id: "sangeet", title: "Sangeet", time: "7:00 PM", date: "May 29", image: "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&q=80&w=800", enabled: true, venueName: "The Grand Palace, Udaipur", venueUrl: "" },
-    { id: "wedding", title: "Wedding", time: "4:00 PM", date: "May 30", image: "https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?auto=format&fit=crop&q=80&w=800", enabled: true, venueName: "The Grand Palace, Udaipur", venueUrl: "" }
+    { id: "sangeet", title: "Sangeet Sandhya", time: "7:00 PM", date: "May 29", image: "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&q=80&w=800", enabled: true, venueName: "The Grand Palace, Udaipur", venueUrl: "" },
+    { id: "wedding", title: "Wedding Ceremony", time: "4:00 PM", date: "May 30", image: "https://images.unsplash.com/photo-1515934751635-c81c6bc9a2d8?auto=format&fit=crop&q=80&w=800", enabled: true, venueName: "The Grand Palace, Udaipur", venueUrl: "" },
+    { id: "reception", title: "Reception & Dinner", time: "8:00 PM", date: "May 30", image: "https://images.unsplash.com/photo-1519741497674-611481863552?auto=format&fit=crop&q=80&w=800", enabled: true, venueName: "The Grand Palace, Udaipur", venueUrl: "" }
   ],
   funds: [
     { id: 1, title: "Honeymoon Fund", description: "Help us create memories on our first journey as a couple.", enabled: true },
@@ -54,7 +57,8 @@ const initialConfig = {
     }
   ],
   tier: 'gold', // 'basic', 'gold', 'platinum'
-  guestName: "Our Special Guest"
+  guestName: "Our Special Guest",
+  language: 'en'
 };
 
 function App() {
@@ -70,7 +74,8 @@ function App() {
           couple: { ...initialConfig.couple, ...parsed.couple },
           funds: parsed.funds || initialConfig.funds,
           events: parsed.events || initialConfig.events,
-          stories: parsed.stories || initialConfig.stories
+          stories: parsed.stories || initialConfig.stories,
+          language: parsed.language || initialConfig.language
         };
       } catch (e) {
         return initialConfig;
@@ -147,7 +152,7 @@ function App() {
   React.useEffect(() => {
     if (!config) return;
 
-    const coverPhoto = config?.couple?.coverPhoto || config?.stories?.[0]?.image || "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?q=80&w=2069&auto=format&fit=crop";
+    const coverPhoto = getSharePhoto(config);
     const title = `Wedding Invitation: ${config.couple.name1 || ''} & ${config.couple.name2 || ''}`;
     
     // Update document title

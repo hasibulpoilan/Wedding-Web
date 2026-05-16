@@ -17,6 +17,7 @@ import ContributionFunds from './ContributionFunds';
 import FoodMenu from './FoodMenu';
 import Navigation from './Navigation';
 import GuestShareTool from './GuestShareTool';
+import { translations } from '../../lib/translations';
 
 const MainInvitation = ({ config }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -26,10 +27,13 @@ const MainInvitation = ({ config }) => {
   const [showContactModal, setShowContactModal] = useState(false);
   const [promoCode, setPromoCode] = useState('');
   const [guestName, setGuestName] = useState('');
+  const [lang, setLang] = useState(config.language || 'en');
+
+  const t = translations[lang] || translations.en;
 
   useEffect(() => {
     if (config.couple.name1 && config.couple.name2) {
-      document.title = `Wedding Invitation: ${config.couple.name1} & ${config.couple.name2}`;
+      document.title = `${t.digitalInvitation || 'Wedding Invitation'}: ${config.couple.name1} ${t.and} ${config.couple.name2}`;
     }
   }, [config.couple]);
 
@@ -41,11 +45,21 @@ const MainInvitation = ({ config }) => {
     
     // Check URL for guest name (overrides config)
     const guest = params.get('guest');
-    if (guest) {
+    if (guest === 'Our Special Guest') {
+      finalGuestName = 'Our Special Guest';
+    } else if (guest) {
       finalGuestName = guest;
     }
     
     setGuestName(finalGuestName);
+
+    // Check URL for language
+    const language = params.get('lang');
+    if (language && (language === 'en' || language === 'bn')) {
+      setLang(language);
+    } else {
+      setLang(config.language || 'en');
+    }
 
     // Check URL for referral code
     const ref = params.get('ref');
@@ -79,7 +93,8 @@ const MainInvitation = ({ config }) => {
         {showIntro && (
           <VideoIntro 
             onComplete={handleIntroComplete} 
-            coupleNames={`${config.couple.name1} & ${config.couple.name2}`} 
+            coupleNames={`${config.couple.name1} ${t.and} ${config.couple.name2}`} 
+            t={t}
           />
         )}
       </AnimatePresence>
@@ -91,6 +106,7 @@ const MainInvitation = ({ config }) => {
           <Envelope 
             initials={config.couple.initials} 
             onOpen={handleOpen} 
+            t={t}
           />
         )}
       </AnimatePresence>
@@ -98,7 +114,7 @@ const MainInvitation = ({ config }) => {
       {/* {isOpen && <Navigation />} */}
 
       <AnimatePresence>
-        {showSplash && <SplashIntro guestName={guestName} config={config} />}
+        {showSplash && <SplashIntro guestName={guestName} config={config} t={t} />}
       </AnimatePresence>
 
       {isOpen && !showSplash && (
@@ -110,31 +126,31 @@ const MainInvitation = ({ config }) => {
         >
           <Petals />
           
-          <Hero config={config} guestName={guestName} />
+          <Hero config={config} guestName={guestName} t={t} lang={lang} />
           
           {/* Save the Date Interactivity */}
           <section id="save-the-date" className="py-24 bg-cream flex flex-col items-center justify-center border-y border-gold/10">
              <div className="mb-12 text-center">
-                <span className="text-[10px] uppercase tracking-[0.4em] text-gold font-bold">Important Notice</span>
-                <h2 className="text-4xl font-serif text-deep-green mt-2">Save the Date</h2>
+                <span className="text-[10px] uppercase tracking-[0.4em] text-gold font-bold">{t.importantNotice}</span>
+                <h2 className="text-4xl font-serif text-deep-green mt-2">{t.saveTheDate}</h2>
              </div>
-             <ScratchCard revealDate={config.date} />
+             <ScratchCard revealDate={config.date} t={t} lang={lang} />
           </section>
 
-          <OurStory stories={config.stories} id="story" />
-          <div id="events"><Events events={config.events} /></div>
-          <div id="venue"><Mandap isPlatinum={true} /></div>
+          <OurStory stories={config.stories} id="story" t={t} />
+          <div id="events"><Events events={config.events} t={t} lang={lang} /></div>
+          <div id="venue"><Mandap isPlatinum={true} t={t} /></div>
           
-          <FoodMenu menu={config.menu} />
+          <FoodMenu menu={config.menu} t={t} />
 
-          <ContributionFunds config={config} />
+          <ContributionFunds config={config} t={t} />
           
-          <WishesWall />
-          <div id="rsvp"><RSVPForm config={config} /></div>
+          <WishesWall t={t} />
+          <div id="rsvp"><RSVPForm config={config} t={t} /></div>
           
           <footer className="py-24 text-center bg-cream border-t border-gold/10 relative overflow-hidden">
              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[12rem] font-pinyon text-gold/5 whitespace-nowrap pointer-events-none">
-                Forever & Always
+                {t.foreverAlways}
              </div>
 
              <motion.div
@@ -143,18 +159,18 @@ const MainInvitation = ({ config }) => {
                viewport={{ once: true }}
                className="relative z-10 space-y-6"
              >
-               <h2 className="text-6xl font-pinyon text-gold">{config.couple.name1} & {config.couple.name2}</h2>
+               <h2 className="text-6xl font-pinyon text-gold">{config.couple.name1} {t.and} {config.couple.name2}</h2>
                <div className="flex items-center justify-center gap-6">
                   <div className="w-12 h-[1px] bg-gold/30" />
-                  <p className="text-deep-green tracking-[0.5em] text-[11px] uppercase font-montserrat font-medium">A Lifetime of Love</p>
+                  <p className="text-deep-green tracking-[0.5em] text-[11px] uppercase font-montserrat font-medium">{t.lifetimeOfLove}</p>
                   <div className="w-12 h-[1px] bg-gold/30" />
                </div>
-               <p className="text-[10px] text-deep-green/40 font-cinzel mt-12 tracking-widest uppercase">Digital Wedding Invitation © 2026</p>
+               <p className="text-[10px] text-deep-green/40 font-cinzel mt-12 tracking-widest uppercase">{t.digitalInvitation} © 2026</p>
 
                {/* Developer Branding & CTA */}
                <div className="mt-16 pt-8 border-t border-gold/10 max-w-sm mx-auto flex flex-col items-center gap-5">
                   <p className="text-xs font-montserrat text-deep-green/70 tracking-wide">
-                    Designed & Developed by <span className="font-bold text-gold">Hasibul Pailan</span>
+                    {t.designedDevelopedBy} <span className="font-bold text-gold">Hasibul Pailan</span>
                   </p>
                   <button
                     onClick={() => setShowContactModal(true)}
@@ -162,7 +178,7 @@ const MainInvitation = ({ config }) => {
                   >
                     <div className="absolute inset-0 bg-gold/5 group-hover:bg-gold/10 transition-colors duration-300" />
                     <span className="relative text-gold text-xs font-bold uppercase tracking-widest">
-                      Build Your Invitation
+                      {t.buildYourInvitation}
                     </span>
                   </button>
                </div>
@@ -172,7 +188,12 @@ const MainInvitation = ({ config }) => {
       )}
 
       {isOpen && !showSplash && (
-        <GuestShareTool coupleNames={`${config.couple.name1} & ${config.couple.name2}`} config={config} guestName={guestName} />
+        <GuestShareTool 
+          coupleNames={`${config.couple.name1} ${t.and} ${config.couple.name2}`} 
+          config={config} 
+          guestName={guestName} 
+          t={t}
+        />
       )}
 
       <AnimatePresence>
@@ -199,25 +220,25 @@ const MainInvitation = ({ config }) => {
                 </svg>
               </div>
 
-              <h3 className="text-2xl font-serif text-deep-green mb-3">Craft Your Perfect Invitation</h3>
+              <h3 className="text-2xl font-serif text-deep-green mb-3">{t.craftPerfectInvitation}</h3>
               <p className="text-sm font-montserrat text-deep-green/70 mb-8 leading-relaxed">
                 Your love story is unique, and your invitation should reflect that. Let's create a stunning digital experience that leaves a lasting impression on your guests!
               </p>
 
               <div className="space-y-4">
                 <div className="mb-4 text-left">
-                  <label className="block text-[10px] font-montserrat text-deep-green/60 mb-2 uppercase tracking-widest font-bold ml-1">Referral / Promo Code</label>
+                  <label className="block text-[10px] font-montserrat text-deep-green/60 mb-2 uppercase tracking-widest font-bold ml-1">{t.promoCodeLabel}</label>
                   <input 
                     type="text" 
                     value={promoCode}
                     onChange={(e) => setPromoCode(e.target.value.toUpperCase())}
-                    placeholder="Enter code (if any)" 
+                    placeholder={t.promoPlaceholder} 
                     className="w-full px-4 py-3 rounded-xl border border-gold/30 bg-white/50 focus:outline-none focus:border-gold focus:ring-1 focus:ring-gold/50 text-deep-green font-montserrat font-bold uppercase tracking-widest placeholder:normal-case placeholder:tracking-normal placeholder:font-normal transition-all"
                   />
                 </div>
 
                 <a 
-                  href={`mailto:hasibulpailan8@gmail.com?subject=Invitation Inquiry${promoCode ? ` (Promo: ${promoCode})` : ''}`}
+                  href={`mailto:hasibulpailan8@gmail.com?subject=${t.inquirySubject}${promoCode ? ` (Promo: ${promoCode})` : ''}`}
                   className="flex items-center justify-center gap-3 w-full px-6 py-4 bg-white border border-gold/20 rounded-xl hover:border-gold hover:bg-gold/5 transition-all group"
                 >
                   <svg className="w-5 h-5 text-gold" fill="none" viewBox="0 0 24 24" stroke="currentColor">

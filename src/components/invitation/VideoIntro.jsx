@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Play, Volume2 } from 'lucide-react';
 
-const VideoIntro = ({ onComplete, coupleNames }) => {
+const VideoIntro = ({ onComplete, coupleNames, t }) => {
   const [isStarted, setIsStarted] = useState(false);
 
   return (
@@ -24,8 +24,8 @@ const VideoIntro = ({ onComplete, coupleNames }) => {
             >
               <Play className="w-8 h-8 text-white fill-white" />
             </motion.div>
-            <h2 className="text-white font-montserrat tracking-[0.5em] uppercase text-[10px] mb-2 opacity-60">Platinum Exclusive</h2>
-            <h1 className="text-white text-4xl font-cinzel">A Cinematic Journey Begins</h1>
+            <h2 className="text-white font-montserrat tracking-[0.5em] uppercase text-[10px] mb-2 opacity-60">{t.platinumExclusive || 'Platinum Exclusive'}</h2>
+            <h1 className="text-white text-4xl font-cinzel">{t.cinematicJourney || 'A Cinematic Journey Begins'}</h1>
           </motion.div>
         ) : (
           <motion.div 
@@ -52,9 +52,9 @@ const VideoIntro = ({ onComplete, coupleNames }) => {
                  transition={{ delay: 1, duration: 2 }}
                  className="mb-8"
                >
-                  <span className="text-gold font-montserrat tracking-[0.8em] uppercase text-[9px] font-bold block mb-4">Together with their families</span>
+                  <span className="text-gold font-montserrat tracking-[0.8em] uppercase text-[9px] font-bold block mb-4">{t.togetherFamilies || 'Together with their families'}</span>
                   <h2 className="text-white text-5xl md:text-7xl font-pinyon mb-4">{coupleNames}</h2>
-                  <p className="text-white/60 font-cinzel tracking-[0.5em] uppercase text-[10px]">Invite you to celebrate their love</p>
+                  <p className="text-white/60 font-cinzel tracking-[0.5em] uppercase text-[10px]">{t.inviteToCelebrate || 'Invite you to celebrate their love'}</p>
                </motion.div>
 
                <motion.div
@@ -71,7 +71,7 @@ const VideoIntro = ({ onComplete, coupleNames }) => {
                  onClick={onComplete}
                  className="px-10 py-4 bg-white/10 hover:bg-white/20 border border-white/20 backdrop-blur-md text-white rounded-full font-cinzel text-[10px] uppercase tracking-[0.5em] transition-all"
                >
-                  Enter Experience
+                  {t.enterExperience || 'Enter Experience'}
                </motion.button>
             </div>
 
@@ -91,7 +91,7 @@ const VideoIntro = ({ onComplete, coupleNames }) => {
 
       <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex items-center gap-2 opacity-30">
          <Volume2 className="w-3 h-3 text-white" />
-         <span className="text-white text-[8px] uppercase tracking-widest font-serif">Sound on recommended</span>
+         <span className="text-white text-[8px] uppercase tracking-widest font-serif">{t.soundRecommended || 'Sound on recommended'}</span>
       </div>
     </div>
   );
