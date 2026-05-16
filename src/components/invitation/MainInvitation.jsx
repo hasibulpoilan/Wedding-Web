@@ -1,4 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
+import {
+  resolveInvitedEventIds,
+  getInvitedEventTitles,
+  getEnabledEvents,
+  isRestrictedInvite,
+  readGuestInviteFromUrl,
+} from '../../lib/guestInvites';
 import { motion, AnimatePresence } from 'framer-motion';
 import Envelope from './Envelope';
 import SplashIntro from './SplashIntro';
@@ -26,10 +33,21 @@ const MainInvitation = ({ config }) => {
   const [showSplash, setShowSplash] = useState(false);
   const [showContactModal, setShowContactModal] = useState(false);
   const [promoCode, setPromoCode] = useState('');
-  const [guestName, setGuestName] = useState('');
+  const [inviteFromUrl, setInviteFromUrl] = useState(() => readGuestInviteFromUrl(config));
   const [lang, setLang] = useState(config.language || 'en');
 
   const t = translations[lang] || translations.en;
+  const { guestName, eventsParam } = inviteFromUrl;
+
+  const invitedEventIds = useMemo(
+    () => resolveInvitedEventIds(config, { guestName, eventsParam }),
+    [config, guestName, eventsParam]
+  );
+
+  const invitedProgramsLabel = useMemo(() => {
+    if (!isRestrictedInvite(config, invitedEventIds)) return null;
+    return getInvitedEventTitles(config, invitedEventIds);
+  }, [config, invitedEventIds]);
 
   useEffect(() => {
     if (config.couple.name1 && config.couple.name2) {
@@ -38,22 +56,9 @@ const MainInvitation = ({ config }) => {
   }, [config.couple]);
 
   useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    
-    // Default from config
-    let finalGuestName = config.guestName || '';
-    
-    // Check URL for guest name (overrides config)
-    const guest = params.get('guest');
-    if (guest === 'Our Special Guest') {
-      finalGuestName = 'Our Special Guest';
-    } else if (guest) {
-      finalGuestName = guest;
-    }
-    
-    setGuestName(finalGuestName);
+    setInviteFromUrl(readGuestInviteFromUrl(config));
 
-    // Check URL for language
+    const params = new URLSearchParams(window.location.search);
     const language = params.get('lang');
     if (language && (language === 'en' || language === 'bn')) {
       setLang(language);
@@ -61,7 +66,6 @@ const MainInvitation = ({ config }) => {
       setLang(config.language || 'en');
     }
 
-    // Check URL for referral code
     const ref = params.get('ref');
     if (ref) {
       setPromoCode(ref);
@@ -72,7 +76,7 @@ const MainInvitation = ({ config }) => {
         setPromoCode(storedRef);
       }
     }
-  }, []);
+  }, [config]);
 
   const handleOpen = () => {
     setIsOpen(true);
@@ -126,7 +130,13 @@ const MainInvitation = ({ config }) => {
         >
           <Petals />
           
-          <Hero config={config} guestName={guestName} t={t} lang={lang} />
+          <Hero
+            config={config}
+            guestName={guestName}
+            t={t}
+            lang={lang}
+            invitedProgramsLabel={invitedProgramsLabel}
+          />
           
           {/* Save the Date Interactivity */}
           <section id="save-the-date" className="py-24 bg-cream flex flex-col items-center justify-center border-y border-gold/10">
@@ -138,7 +148,9 @@ const MainInvitation = ({ config }) => {
           </section>
 
           <OurStory stories={config.stories} id="story" t={t} />
-          <div id="events"><Events events={config.events} t={t} lang={lang} /></div>
+          <div id="events">
+            <Events events={config.events} t={t} lang={lang} invitedEventIds={invitedEventIds} />
+          </div>
           <div id="venue"><Mandap isPlatinum={true} t={t} /></div>
           
           <FoodMenu menu={config.menu} t={t} />
@@ -146,7 +158,9 @@ const MainInvitation = ({ config }) => {
           <ContributionFunds config={config} t={t} />
           
           <WishesWall t={t} />
-          <div id="rsvp"><RSVPForm config={config} t={t} /></div>
+          <div id="rsvp">
+            <RSVPForm config={config} t={t} lang={lang} invitedEventIds={invitedEventIds} />
+          </div>
           
           <footer className="py-24 text-center bg-cream border-t border-gold/10 relative overflow-hidden">
              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[12rem] font-pinyon text-gold/5 whitespace-nowrap pointer-events-none">

@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Rocket, CloudSync, Save } from 'lucide-react';
 import { supabase } from './lib/supabase';
 import { getSharePhoto } from './lib/sharePhoto';
+import { getLastGuestInvite, applyGuestInviteToUrl } from './lib/guestInvites';
 
 const initialConfig = {
   weddingId: "tanmay-tanya",
@@ -58,6 +59,7 @@ const initialConfig = {
   ],
   tier: 'gold', // 'basic', 'gold', 'platinum'
   guestName: "Our Special Guest",
+  guests: [],
   language: 'en'
 };
 
@@ -75,7 +77,8 @@ function App() {
           funds: parsed.funds || initialConfig.funds,
           events: parsed.events || initialConfig.events,
           stories: parsed.stories || initialConfig.stories,
-          language: parsed.language || initialConfig.language
+          language: parsed.language || initialConfig.language,
+          guests: parsed.guests || initialConfig.guests
         };
       } catch (e) {
         return initialConfig;
@@ -137,7 +140,15 @@ function App() {
         .single();
 
       if (data && !error) {
-        setConfig(data.config);
+        setConfig((prev) => ({
+          ...prev,
+          ...data.config,
+          couple: { ...prev.couple, ...data.config.couple },
+          events: data.config.events || prev.events,
+          stories: data.config.stories || prev.stories,
+          funds: data.config.funds || prev.funds,
+          guests: data.config.guests?.length ? data.config.guests : prev.guests,
+        }));
         console.log('Cloud data loaded successfully');
       } else if (error && error.code !== 'PGRST116') {
         console.error('Error loading from cloud:', error.message);
@@ -234,7 +245,24 @@ function App() {
               isAdmin={isAdmin}
               saveToCloud={saveToCloud}
               isSyncing={isSyncing}
-              onFinish={() => setViewMode('invitation')} 
+              onFinish={() => {
+                const last = getLastGuestInvite();
+                const guest = config.guests?.[0];
+                if (last?.guestName) {
+                  applyGuestInviteToUrl(config, {
+                    guestName: last.guestName,
+                    invitedEventIds: last.invitedEventIds,
+                    lang: last.lang || config.language,
+                  });
+                } else if (guest?.name) {
+                  applyGuestInviteToUrl(config, {
+                    guestName: guest.name,
+                    invitedEventIds: guest.invitedEvents,
+                    lang: config.language,
+                  });
+                }
+                setViewMode('invitation');
+              }} 
             />
             
             {/* Marketing Tool Button - Commented out as requested

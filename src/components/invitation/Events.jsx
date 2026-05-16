@@ -5,8 +5,12 @@ import { format, parseISO, isValid } from 'date-fns';
 import { bn } from 'date-fns/locale';
 import { toBengaliDigits } from '../../lib/translations';
 
-const Events = ({ events, t, lang }) => {
-  const activeEvents = events.filter(e => e.enabled);
+const Events = ({ events, t, lang, invitedEventIds }) => {
+  const enabled = events.filter((e) => e.enabled);
+  const activeEvents =
+    invitedEventIds?.length > 0
+      ? enabled.filter((e) => invitedEventIds.includes(e.id))
+      : enabled;
 
   const openInGoogleMaps = (event) => {
     if (event.venueUrl) {

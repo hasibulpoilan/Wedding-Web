@@ -1,9 +1,7 @@
 import React from 'react';
-const guestLink = (weddingId) =>
-  `${window.location.origin}/?id=${weddingId}&mode=guest`;
 
-const GuestLinkShareIcons = ({ weddingId, coupleLabel }) => {
-  const link = guestLink(weddingId);
+const GuestLinkShareIcons = ({ shareLink, coupleLabel }) => {
+  const link = shareLink;
   const message = `Hi! You are invited to ${coupleLabel}'s wedding. Open the invitation: ${link}`;
 
   const items = [

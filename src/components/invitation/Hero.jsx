@@ -4,7 +4,7 @@ import { format, differenceInSeconds } from 'date-fns';
 import { bn } from 'date-fns/locale';
 import { toBengaliDigits } from '../../lib/translations';
 
-const Hero = ({ config, guestName, t, lang }) => {
+const Hero = ({ config, guestName, t, lang, invitedProgramsLabel }) => {
   const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
 
   useEffect(() => {
@@ -77,6 +77,11 @@ const Hero = ({ config, guestName, t, lang }) => {
             {guestName === 'Our Special Guest' ? t.specialGuest : guestName}
           </h2>
           <div className="w-8 h-[1px] bg-gold/20 mx-auto mt-2" />
+          {invitedProgramsLabel && (
+            <p className="mt-4 text-[9px] uppercase tracking-[0.35em] text-deep-green/50 font-bold max-w-md mx-auto">
+              {t.invitedTo || 'Invited to'}: {invitedProgramsLabel}
+            </p>
+          )}
         </motion.div>
       )}
 

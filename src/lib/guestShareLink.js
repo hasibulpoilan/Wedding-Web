@@ -1,7 +1,9 @@
+import { resolveInvitedEventIds, getEnabledEvents } from './guestInvites';
+
 /**
  * Builds a clean guest invitation URL (no admin/setup params).
  */
-export function buildGuestInvitationLink(config, guestName) {
+export function buildGuestInvitationLink(config, guestName, options = {}) {
   const origin = window.location.origin;
   const params = new URLSearchParams();
 
@@ -16,7 +18,21 @@ export function buildGuestInvitationLink(config, guestName) {
     params.set('guest', name);
   }
 
-  const lang = new URLSearchParams(window.location.search).get('lang') || config?.language;
+  const eventsParam =
+    options.eventsParam ?? new URLSearchParams(window.location.search).get('events');
+  const invitedIds = resolveInvitedEventIds(config, {
+    guestName: name,
+    eventsParam,
+  });
+  const enabledIds = getEnabledEvents(config).map((e) => e.id);
+  if (invitedIds.length > 0 && invitedIds.length < enabledIds.length) {
+    params.set('events', invitedIds.join(','));
+  }
+
+  const lang =
+    options.lang ??
+    new URLSearchParams(window.location.search).get('lang') ??
+    config?.language;
   if (lang) params.set('lang', lang);
 
   return `${origin}/?${params.toString()}`;
