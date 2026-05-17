@@ -6,8 +6,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Rocket, CloudSync, Save } from 'lucide-react';
 import { supabase } from './lib/supabase';
 import { getSharePhoto } from './lib/sharePhoto';
-import { getLastGuestInvite, applyGuestInviteToUrl } from './lib/guestInvites';
-
 const initialConfig = {
   weddingId: "tanmay-tanya",
   masterName1: "Tanmay", // The original names set by Hasibul
@@ -245,24 +243,7 @@ function App() {
               isAdmin={isAdmin}
               saveToCloud={saveToCloud}
               isSyncing={isSyncing}
-              onFinish={() => {
-                const last = getLastGuestInvite();
-                const guest = config.guests?.[0];
-                if (last?.guestName) {
-                  applyGuestInviteToUrl(config, {
-                    guestName: last.guestName,
-                    invitedEventIds: last.invitedEventIds,
-                    lang: last.lang || config.language,
-                  });
-                } else if (guest?.name) {
-                  applyGuestInviteToUrl(config, {
-                    guestName: guest.name,
-                    invitedEventIds: guest.invitedEvents,
-                    lang: config.language,
-                  });
-                }
-                setViewMode('invitation');
-              }} 
+              onFinish={() => setViewMode('invitation')} 
             />
             
             {/* Marketing Tool Button - Commented out as requested

@@ -1,8 +1,10 @@
 import React from 'react';
 
-const GuestLinkShareIcons = ({ shareLink, coupleLabel }) => {
+const GuestLinkShareIcons = ({ shareLink, coupleLabel, shareMessage }) => {
   const link = shareLink;
-  const message = `Hi! You are invited to ${coupleLabel}'s wedding. Open the invitation: ${link}`;
+  const message =
+    shareMessage ||
+    `Hi! You are invited to ${coupleLabel}'s wedding. Open the invitation: ${link}`;
 
   const items = [
     {

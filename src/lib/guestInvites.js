@@ -116,6 +116,32 @@ export function getInvitedEventTitles(config, invitedIds, separator = ', ') {
     .join(separator);
 }
 
+/**
+ * Builder link for the couple (owner). No mode=guest, no role=admin.
+ */
+export function buildOwnerSetupLink(config, { lang } = {}) {
+  const origin = typeof window !== 'undefined' ? window.location.origin : '';
+  const params = new URLSearchParams();
+
+  const weddingId =
+    config?.weddingId ||
+    (typeof window !== 'undefined'
+      ? new URLSearchParams(window.location.search).get('id')
+      : null);
+  if (weddingId) params.set('id', weddingId);
+
+  const language =
+    lang ||
+    config?.language ||
+    (typeof window !== 'undefined'
+      ? new URLSearchParams(window.location.search).get('lang')
+      : null);
+  if (language) params.set('lang', language);
+
+  const query = params.toString();
+  return query ? `${origin}/?${query}` : `${origin}/`;
+}
+
 export function buildGuestInviteLink(config, { guestName, invitedEventIds, lang } = {}) {
   const origin = typeof window !== 'undefined' ? window.location.origin : '';
   const params = new URLSearchParams();

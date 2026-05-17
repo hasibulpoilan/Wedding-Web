@@ -5,8 +5,13 @@ import { getSharePhoto } from '../../lib/sharePhoto';
 import CoverPhotoEditor from './CoverPhotoEditor';
 import GuestInviteManager from './GuestInviteManager';
 import ShareGuestLinkBar from './ShareGuestLinkBar';
+import ShareOwnerLinkBar from './ShareOwnerLinkBar';
 
 const SetupDashboard = ({ config, updateConfig, isAdmin, saveToCloud, isSyncing, onFinish }) => {
+  const isLicensedOwner =
+    config.couple.name1 === config.masterName1 &&
+    config.couple.name2 === config.masterName2;
+  const canInviteGuests = !isAdmin && isLicensedOwner;
   const fileInputRef = useRef(null);
 
   const handleFileUpload = (e, path, isStory = false, index = 0) => {
@@ -695,11 +700,13 @@ const SetupDashboard = ({ config, updateConfig, isAdmin, saveToCloud, isSyncing,
           </section>
         </div>
 
-          <GuestInviteManager config={config} updateConfig={updateConfig} />
+          {canInviteGuests && (
+            <GuestInviteManager config={config} updateConfig={updateConfig} />
+          )}
 
 
         {/* Section 8: Share & Publish */}
-        <section className={`col-span-1 md:col-span-2 space-y-8 p-10 rounded-[2.5rem] shadow-2xl relative overflow-hidden text-white transition-all duration-500 ${(isAdmin || (config.couple.name1 === config.masterName1 && config.couple.name2 === config.masterName2))
+        <section className={`col-span-1 md:col-span-2 space-y-8 p-10 rounded-[2.5rem] shadow-2xl relative overflow-hidden text-white transition-all duration-500 ${(isAdmin || isLicensedOwner)
           ? 'bg-neutral-900 border-none'
           : 'bg-red-900/90 border-2 border-red-500 backdrop-blur-md'
           }`}>
@@ -708,13 +715,20 @@ const SetupDashboard = ({ config, updateConfig, isAdmin, saveToCloud, isSyncing,
           </div>
 
           <div className="relative z-10">
-            {(isAdmin || (config.couple.name1 === config.masterName1 && config.couple.name2 === config.masterName2)) ? (
+            {isAdmin ? (
               <>
-                <h2 className="text-3xl font-serif mb-2 italic">{isAdmin ? 'Admin: Share Invitation' : 'Ready to Invite?'}</h2>
+                <h2 className="text-3xl font-serif mb-2 italic">Admin: Share Owner Link</h2>
                 <p className="text-xs text-neutral-400 uppercase tracking-widest font-bold mb-8">
-                  {isAdmin ? 'You are in Super-Admin mode. Sharing is always enabled.' : 'Share your premium cinematic invitation with guests'}
+                  Send the builder to the couple. They will invite guests from their dashboard.
                 </p>
-
+                <ShareOwnerLinkBar config={config} />
+              </>
+            ) : canInviteGuests ? (
+              <>
+                <h2 className="text-3xl font-serif mb-2 italic">Ready to Invite?</h2>
+                <p className="text-xs text-neutral-400 uppercase tracking-widest font-bold mb-8">
+                  Share your premium cinematic invitation with guests
+                </p>
                 <ShareGuestLinkBar config={config} />
               </>
             ) : (
@@ -741,9 +755,11 @@ const SetupDashboard = ({ config, updateConfig, isAdmin, saveToCloud, isSyncing,
               </div>
             )}
 
-            <p className="mt-6 text-[10px] text-neutral-500 italic font-serif">
-              Note: The Guest Link will hide the builder dashboard and only show the elegant wedding invitation.
-            </p>
+            {!isAdmin && (
+              <p className="mt-6 text-[10px] text-neutral-500 italic font-serif">
+                Note: Guest links hide the builder and only show the invitation.
+              </p>
+            )}
           </div>
         </section>
 
