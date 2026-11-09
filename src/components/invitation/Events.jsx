@@ -109,17 +109,19 @@ const Events = ({ events, t, lang, invitedEventIds }) => {
                   </div>
                 </div>
 
-                <div className="pt-4">
-                  <motion.button 
-                    whileHover={{ scale: 1.02 }}
-                    whileTap={{ scale: 0.98 }}
-                    onClick={() => openInGoogleMaps(event)}
-                    className="w-full py-4 bg-neutral-900 text-cream text-[11px] uppercase tracking-[0.3em] font-bold rounded-2xl hover:bg-gold transition-all duration-500 shadow-xl flex items-center justify-center gap-3 group/btn font-montserrat"
-                  >
-                     <span>{t.viewOnMap || 'View on Map'}</span>
-                     <ExternalLink className="w-3 h-3 opacity-50 group-hover/btn:opacity-100 transition-opacity" />
-                  </motion.button>
-                </div>
+                {event.venueUrl && (
+                  <div className="pt-4">
+                    <motion.button 
+                      whileHover={{ scale: 1.02 }}
+                      whileTap={{ scale: 0.98 }}
+                      onClick={() => openInGoogleMaps(event)}
+                      className="w-full py-4 bg-neutral-900 text-cream text-[11px] uppercase tracking-[0.3em] font-bold rounded-2xl hover:bg-gold transition-all duration-500 shadow-xl flex items-center justify-center gap-3 group/btn font-montserrat"
+                    >
+                       <span>{t.viewOnMap || 'View on Map'}</span>
+                       <ExternalLink className="w-3 h-3 opacity-50 group-hover/btn:opacity-100 transition-opacity" />
+                    </motion.button>
+                  </div>
+                )}
             </div>
             
             {/* Elegant Border Accent */}

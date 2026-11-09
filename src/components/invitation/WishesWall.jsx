@@ -2,18 +2,31 @@ import React, { useState, useRef, useEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Send, Camera, X, Upload } from 'lucide-react';
+import { submitGuestWish, fetchGuestWishes } from '../../lib/guestFeedback';
 
-const WishesWall = ({ t }) => {
-  const [wishes, setWishes] = useState([
-    { id: 1, name: "Rahul & Neha", message: "So happy for you both! Wishing you a lifetime of love and happiness.", emoji: "❤️", image: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?auto=format&fit=crop&q=80&w=400" },
-    { id: 2, name: "Priya Sharma", message: "Can't wait for the Udaipur wedding! It's going to be magical.", emoji: "✨", image: null },
-    { id: 3, name: "Uncle Ji", message: "God bless you both on this new journey. Stay happy always.", emoji: "🙏", image: null }
-  ]);
+const WishesWall = ({ t, weddingId, guestName, isOwner }) => {
+  const [wishes, setWishes] = useState([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    const loadWishes = async () => {
+      if (!weddingId) return;
+      const data = await fetchGuestWishes({ weddingId, guestName, isOwner });
+      setWishes(data || []);
+    };
+    loadWishes();
+  }, [weddingId, guestName, isOwner]);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newWish, setNewWish] = useState({ name: '', message: '', emoji: '❤️', image: null });
+  const [newWish, setNewWish] = useState({ name: guestName || '', message: '', emoji: '❤️', image: null });
   const fileInputRef = useRef(null);
   const scrollLockY = useRef(0);
+
+  useEffect(() => {
+    if (guestName) {
+      setNewWish((prev) => ({ ...prev, name: guestName }));
+    }
+  }, [guestName]);
 
   useEffect(() => {
     if (!isModalOpen) return;
@@ -50,18 +63,40 @@ const WishesWall = ({ t }) => {
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
     if (file) {
-      const url = URL.createObjectURL(file);
-      setNewWish({ ...newWish, image: url });
+      if (file.size > 2 * 1024 * 1024) {
+        alert("Please upload an image smaller than 2MB.");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setNewWish((prev) => ({ ...prev, image: reader.result }));
+      };
+      reader.readAsDataURL(file);
     }
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (newWish.name && newWish.message) {
-      setWishes([{ id: Date.now(), ...newWish }, ...wishes]);
+    if (!newWish.name.trim() || !newWish.message.trim()) return;
+
+    setIsSubmitting(true);
+    const res = await submitGuestWish({
+      weddingId: weddingId || 'default-wedding',
+      guestName: newWish.name.trim(),
+      message: newWish.message.trim(),
+      emoji: newWish.emoji,
+      image: newWish.image,
+    });
+
+    if (res.success) {
+      setWishes((prev) => [res.wish, ...prev]);
       setIsModalOpen(false);
-      setNewWish({ name: '', message: '', emoji: '❤️', image: null });
+      setNewWish({ name: guestName || '', message: '', emoji: '❤️', image: null });
+      alert('Thank you! Your wish has been sent to the couple.');
+    } else {
+      alert('Could not submit wish. Please try again.');
     }
+    setIsSubmitting(false);
   };
 
   const modal = (

@@ -4,6 +4,7 @@ import { Heart, Calendar, MapPin, ImageIcon, Sparkles, Send, Music, Upload, Gift
 import { getSharePhoto } from '../../lib/sharePhoto';
 import CoverPhotoEditor from './CoverPhotoEditor';
 import GuestInviteManager from './GuestInviteManager';
+import ClientFeedbackDashboard from './ClientFeedbackDashboard';
 import ShareGuestLinkBar from './ShareGuestLinkBar';
 import ShareOwnerLinkBar from './ShareOwnerLinkBar';
 
@@ -701,7 +702,10 @@ const SetupDashboard = ({ config, updateConfig, isAdmin, saveToCloud, isSyncing,
         </div>
 
           {canInviteGuests && (
-            <GuestInviteManager config={config} updateConfig={updateConfig} />
+            <>
+              <ClientFeedbackDashboard weddingId={config.weddingId} events={config.events} />
+              <GuestInviteManager config={config} updateConfig={updateConfig} />
+            </>
           )}
 
 

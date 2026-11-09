@@ -4,19 +4,26 @@ import { CheckCircle, Loader2 } from 'lucide-react';
 import { format, parseISO, isValid } from 'date-fns';
 import { bn } from 'date-fns/locale';
 import { filterEventsByInvite, isRestrictedInvite } from '../../lib/guestInvites';
+import { submitGuestRSVP } from '../../lib/guestFeedback';
 
 const toBengaliDigits = (str) => {
   const map = { 0: '০', 1: '১', 2: '২', 3: '৩', 4: '৪', 5: '৫', 6: '৬', 7: '৭', 8: '৮', 9: '৯' };
   return String(str).replace(/[0-9]/g, (d) => map[d] ?? d);
 };
 
-const RSVPForm = ({ config, t, lang, invitedEventIds }) => {
+const RSVPForm = ({ config, t, lang, invitedEventIds, guestName }) => {
   const invitedEvents = useMemo(
     () => filterEventsByInvite(config, invitedEventIds),
     [config, invitedEventIds]
   );
 
-  const [formData, setFormData] = useState({ name: '', responses: {} });
+  const [formData, setFormData] = useState({ name: guestName || '', responses: {} });
+
+  React.useEffect(() => {
+    if (guestName) {
+      setFormData((prev) => ({ ...prev, name: guestName }));
+    }
+  }, [guestName]);
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -27,7 +34,7 @@ const RSVPForm = ({ config, t, lang, invitedEventIds }) => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     const answered = invitedEvents.every(
@@ -39,10 +46,19 @@ const RSVPForm = ({ config, t, lang, invitedEventIds }) => {
     }
 
     setIsLoading(true);
-    setTimeout(() => {
-      setIsLoading(false);
+    try {
+      await submitGuestRSVP({
+        weddingId: config.weddingId || 'default-wedding',
+        guestName: formData.name.trim(),
+        responses: formData.responses,
+      });
       setIsSubmitted(true);
-    }, 1500);
+    } catch (err) {
+      console.error(err);
+      setIsSubmitted(true); // Still show thank you
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const formatEventDate = (event) => {

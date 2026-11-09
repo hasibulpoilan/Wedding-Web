@@ -157,9 +157,9 @@ const MainInvitation = ({ config }) => {
 
           <ContributionFunds config={config} t={t} />
           
-          <WishesWall t={t} />
+          <WishesWall t={t} weddingId={config.weddingId} guestName={guestName} isOwner={!guestName} />
           <div id="rsvp">
-            <RSVPForm config={config} t={t} lang={lang} invitedEventIds={invitedEventIds} />
+            <RSVPForm config={config} t={t} lang={lang} invitedEventIds={invitedEventIds} guestName={guestName} />
           </div>
           
           <footer className="py-24 text-center bg-cream border-t border-gold/10 relative overflow-hidden">
