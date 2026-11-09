@@ -7,8 +7,8 @@ const Envelope = ({ initials, onOpen, t }) => {
 
   const handleBreak = () => {
     setIsBreaking(true);
-    setTimeout(() => setIsUnfolding(true), 500);
-    setTimeout(onOpen, 2000);
+    setTimeout(() => setIsUnfolding(true), 300);
+    setTimeout(onOpen, 1100);
   };
 
   return (
@@ -33,7 +33,7 @@ const Envelope = ({ initials, onOpen, t }) => {
         <motion.div 
           className="absolute top-0 left-0 w-full h-1/2 bg-envelope-red origin-top z-20 shadow-lg"
           animate={isUnfolding ? { rotateX: -160 } : { rotateX: 0 }}
-          transition={{ duration: 1, ease: "easeInOut" }}
+          transition={{ duration: 0.7, ease: "easeInOut" }}
           style={{ 
             backgroundImage: 'url("/assets/envelope.png")', 
             backgroundSize: 'cover',

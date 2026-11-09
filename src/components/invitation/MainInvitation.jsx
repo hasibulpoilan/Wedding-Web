@@ -84,7 +84,7 @@ const MainInvitation = ({ config }) => {
     setShowSplash(true);
     setTimeout(() => {
       setShowSplash(false);
-    }, 2200);
+    }, 1400);
   };
 
   const handleIntroComplete = () => {
@@ -123,9 +123,9 @@ const MainInvitation = ({ config }) => {
 
       {isOpen && !showSplash && (
         <motion.div 
-          initial={{ opacity: 0, filter: 'blur(10px)' }}
-          animate={{ opacity: 1, filter: 'blur(0px)' }}
-          transition={{ duration: 1.5, ease: "easeOut" }}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6, ease: "easeOut" }}
           className="relative"
         >
           <Petals />

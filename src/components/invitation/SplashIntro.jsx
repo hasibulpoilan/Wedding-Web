@@ -5,7 +5,7 @@ const Particles = () => {
   // Increased count to 250 for a dense starfield effect
   const colors = ['#FF69B4', '#FF1493', '#FF4D4D', '#D4AF37', '#E0115F', '#FFB6C1', '#FF007F', '#FF3366'];
 
-  const particles = useMemo(() => [...Array(200)].map((_, i) => {
+  const particles = useMemo(() => [...Array(35)].map((_, i) => {
     const angle = Math.random() * Math.PI * 2;
     const distance = Math.random() * 150 + 50;
     return {
@@ -22,7 +22,7 @@ const Particles = () => {
     };
   }), []);
 
-  const driftParticles = useMemo(() => [...Array(40)].map((_, i) => ({
+  const driftParticles = useMemo(() => [...Array(12)].map((_, i) => ({
     id: `drift-${i}`,
     x: Math.random() * 100,
     y: Math.random() * 100,
@@ -103,7 +103,7 @@ const SplashIntro = ({ guestName, config, t }) => {
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      exit={{ opacity: 0, filter: 'blur(15px)', scale: 1.1 }}
+      exit={{ opacity: 0, scale: 1.05 }}
       transition={{ duration: 0.8, ease: "easeInOut" }}
       className="fixed inset-0 z-[100] flex flex-col items-center justify-center bg-cream overflow-hidden"
     >
@@ -111,8 +111,8 @@ const SplashIntro = ({ guestName, config, t }) => {
       <Particles />
 
       <motion.div
-        initial={{ opacity: 0, scale: 0.9, filter: 'blur(10px)' }}
-        animate={{ opacity: 1, scale: [0.9, 1.05, 1], filter: 'blur(0px)' }}
+        initial={{ opacity: 0, scale: 0.95 }}
+        animate={{ opacity: 1, scale: 1 }}
         transition={{
           delay: 0.1,
           duration: 1.2,
