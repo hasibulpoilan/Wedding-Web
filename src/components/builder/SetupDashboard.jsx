@@ -660,52 +660,7 @@ const SetupDashboard = ({ config, updateConfig, isAdmin, saveToCloud, isSyncing,
             </div>
           </section>
 
-          {/* Section 7: Invitation Tiers (Monetization Strategy) */}
-          <section className="col-span-1 md:col-span-2 space-y-8 bg-white p-10 rounded-[2.5rem] shadow-xl border-2 border-gold/20 relative overflow-hidden">
-            <div className="absolute top-0 right-0 p-4 bg-gold text-white text-[10px] font-bold uppercase tracking-widest rounded-bl-2xl">
-              Special Offer
-            </div>
-
-            <div className="text-center mb-10">
-              <h2 className="text-3xl font-serif text-deep-green mb-2 italic">Invitation Tier</h2>
-              <p className="text-xs text-neutral-400 uppercase tracking-widest font-bold">Enjoy all premium features at no cost!</p>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-1 gap-6 max-w-2xl mx-auto">
-              <motion.div
-                whileHover={{ y: -5 }}
-                className="p-8 rounded-[2.5rem] border-2 border-gold bg-gold/5 shadow-xl shadow-gold/10 relative"
-              >
-                <div className="flex justify-between items-start mb-6">
-                  <span className="text-[12px] font-bold uppercase tracking-widest px-4 py-2 rounded-full bg-gold text-white">
-                    Free All-Access Pass
-                  </span>
-                  <Sparkles className="w-6 h-6 text-gold animate-pulse" />
-                </div>
-                <h3 className="text-2xl font-serif text-deep-green mb-3">Premium Cinematic Experience</h3>
-                <p className="text-[11px] text-neutral-500 mb-8 leading-relaxed font-serif italic">
-                  For a limited time, all premium luxury features are completely unlocked for your invitation.
-                </p>
-
-                <div className="grid grid-cols-2 gap-4">
-                  {[
-                    'Interactive Envelope',
-                    'Falling Petals',
-                    'Personalized Video Intro',
-                    '3D Mandap Reveal',
-                    'Interactive Guestbook',
-                    'Gift Registry',
-                    'Vendor Referrals',
-                    'Music Player'
-                  ].map(f => (
-                    <li key={f} className="text-[10px] text-deep-green/80 flex items-center gap-3 font-bold uppercase tracking-widest">
-                      <div className="w-1.5 h-1.5 bg-gold rounded-full" /> {f}
-                    </li>
-                  ))}
-                </div>
-              </motion.div>
-            </div>
-          </section>
+          
         </div>
 
           {canInviteGuests && (
