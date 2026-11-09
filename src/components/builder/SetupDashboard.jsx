@@ -101,6 +101,13 @@ const SetupDashboard = ({ config, updateConfig, isAdmin, saveToCloud, isSyncing,
           <p className="text-neutral-500 font-serif tracking-widest uppercase text-xs">Manage your digital wedding in the cloud</p>
         </header>
 
+        {/* Client Responses (RSVP & Wishes) right at the top */}
+        {canInviteGuests && (
+          <div className="mb-12">
+            <ClientFeedbackDashboard weddingId={config.weddingId} events={config.events} />
+          </div>
+        )}
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12">
           {/* Section 1: The Couple */}
           <section className="space-y-6 bg-white p-8 rounded-[2rem] shadow-sm border border-gold/5">
@@ -702,10 +709,7 @@ const SetupDashboard = ({ config, updateConfig, isAdmin, saveToCloud, isSyncing,
         </div>
 
           {canInviteGuests && (
-            <>
-              <ClientFeedbackDashboard weddingId={config.weddingId} events={config.events} />
-              <GuestInviteManager config={config} updateConfig={updateConfig} />
-            </>
+            <GuestInviteManager config={config} updateConfig={updateConfig} />
           )}
 
 
