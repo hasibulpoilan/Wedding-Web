@@ -68,3 +68,70 @@ h1, h2, h3, h4, .cursive {
     text-shadow: 0 0 10px rgba(197, 160, 89, 0.5);
   }
 }
+
+
+/* Blush Velvet & Floral Theme Palette & Accents */
+.theme-blush-floral {
+  --color-cream: #FDF7F2;
+  --color-gold: #C58B58;
+  --color-gold-light: #FFE29F;
+  --color-deep-green: #1E4D38;
+  background-color: #FDF7F2 !important;
+}
+
+.theme-blush-floral .bg-cream {
+  background-color: #FDF7F2 !important;
+}
+
+.theme-blush-floral .bg-white {
+  background-color: #FFFDFB !important;
+}
+
+.theme-blush-floral .text-deep-green {
+  color: #1E4D38 !important;
+}
+
+.theme-blush-floral .text-gold {
+  color: #C58B58 !important;
+}
+
+.theme-blush-floral .border-gold\/10 {
+  border-color: rgba(197, 139, 88, 0.15) !important;
+}
+
+.theme-blush-floral .border-gold\/20 {
+  border-color: rgba(197, 139, 88, 0.25) !important;
+}
+
+.theme-blush-floral .bg-gold {
+  background-color: #C58B58 !important;
+}
+
+.theme-blush-floral .bg-gold\/5 {
+  background-color: rgba(197, 139, 88, 0.06) !important;
+}
+
+.theme-blush-floral .bg-gold\/10 {
+  background-color: rgba(197, 139, 88, 0.12) !important;
+}
+
+.theme-blush-floral .bg-gold\/20 {
+  background-color: rgba(197, 139, 88, 0.2) !important;
+}
+
+.theme-blush-floral .bg-neutral-900 {
+  background-color: #6A1024 !important; /* Rich Burgundy Velvet button */
+}
+
+.theme-blush-floral .hover\:bg-gold:hover {
+  background-color: #A8203D !important;
+}
+
+.theme-blush-floral #save-the-date {
+  background-color: #FAF2EC !important;
+  background-image: radial-gradient(circle at 50% 50%, #FFF9F5 0%, #FAF0E8 100%) !important;
+}
+
+.theme-blush-floral footer {
+  background-color: #F8EFE7 !important;
+}

@@ -8,6 +8,8 @@ import {
 } from '../../lib/guestInvites';
 import { motion, AnimatePresence } from 'framer-motion';
 import Envelope from './Envelope';
+import VelvetFloralEnvelope from './VelvetFloralEnvelope';
+import FloralHero from './FloralHero';
 import SplashIntro from './SplashIntro';
 import Hero from './Hero';
 import OurStory from './OurStory';
@@ -92,7 +94,8 @@ const MainInvitation = ({ config }) => {
   };
 
   return (
-    <div className="relative w-full h-full bg-cream overflow-y-auto overflow-x-hidden scroll-smooth">
+    <div className={`relative w-full h-full bg-cream overflow-y-auto overflow-x-hidden scroll-smooth ${config.themeId === "blush-floral" ? "theme-blush-floral" : ""}`}>
+
       <AnimatePresence>
         {showIntro && (
           <VideoIntro 
@@ -107,11 +110,19 @@ const MainInvitation = ({ config }) => {
       
       <AnimatePresence>
         {!isOpen && (
-          <Envelope 
-            initials={config.couple.initials} 
-            onOpen={handleOpen} 
-            t={t}
-          />
+          config.themeId === 'blush-floral' ? (
+            <VelvetFloralEnvelope 
+              initials={config.couple.initials} 
+              onOpen={handleOpen} 
+              t={t}
+            />
+          ) : (
+            <Envelope 
+              initials={config.couple.initials} 
+              onOpen={handleOpen} 
+              t={t}
+            />
+          )
         )}
       </AnimatePresence>
 
@@ -130,13 +141,23 @@ const MainInvitation = ({ config }) => {
         >
           <Petals />
           
-          <Hero
-            config={config}
-            guestName={guestName}
-            t={t}
-            lang={lang}
-            invitedProgramsLabel={invitedProgramsLabel}
-          />
+          {config.themeId === 'blush-floral' ? (
+            <FloralHero
+              config={config}
+              guestName={guestName}
+              t={t}
+              lang={lang}
+              invitedProgramsLabel={invitedProgramsLabel}
+            />
+          ) : (
+            <Hero
+              config={config}
+              guestName={guestName}
+              t={t}
+              lang={lang}
+              invitedProgramsLabel={invitedProgramsLabel}
+            />
+          )}
           
           {/* Save the Date Interactivity */}
           <section id="save-the-date" className="py-24 bg-cream flex flex-col items-center justify-center border-y border-gold/10">

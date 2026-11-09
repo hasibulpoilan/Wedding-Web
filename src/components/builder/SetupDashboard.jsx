@@ -5,6 +5,7 @@ import { getSharePhoto } from '../../lib/sharePhoto';
 import CoverPhotoEditor from './CoverPhotoEditor';
 import GuestInviteManager from './GuestInviteManager';
 import ClientFeedbackDashboard from './ClientFeedbackDashboard';
+import ThemeSelector from './ThemeSelector';
 import ShareGuestLinkBar from './ShareGuestLinkBar';
 import ShareOwnerLinkBar from './ShareOwnerLinkBar';
 
@@ -100,6 +101,14 @@ const SetupDashboard = ({ config, updateConfig, isAdmin, saveToCloud, isSyncing,
           <h1 className="text-4xl md:text-5xl font-serif text-deep-green mb-4 italic">Invitation Builder</h1>
           <p className="text-neutral-500 font-serif tracking-widest uppercase text-xs">Manage your digital wedding in the cloud</p>
         </header>
+
+        {/* Admin Exclusive: Theme Selector */}
+        {isAdmin && (
+          <ThemeSelector
+            currentTheme={config.themeId || 'royal-gold'}
+            onSelectTheme={(themeId) => updateConfig('themeId', themeId)}
+          />
+        )}
 
         {/* Client Responses (RSVP & Wishes) right at the top */}
         {canInviteGuests && (

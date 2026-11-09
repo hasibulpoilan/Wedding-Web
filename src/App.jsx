@@ -58,7 +58,8 @@ const initialConfig = {
   tier: 'gold', // 'basic', 'gold', 'platinum'
   guestName: "Our Special Guest",
   guests: [],
-  language: 'en'
+  language: 'en',
+  themeId: 'royal-gold'
 };
 
 function App() {
@@ -76,6 +77,7 @@ function App() {
           events: parsed.events || initialConfig.events,
           stories: parsed.stories || initialConfig.stories,
           language: parsed.language || initialConfig.language,
+          themeId: parsed.themeId || initialConfig.themeId || 'royal-gold',
           guests: parsed.guests || initialConfig.guests
         };
       } catch (e) {
@@ -146,6 +148,7 @@ function App() {
           stories: data.config.stories || prev.stories,
           funds: data.config.funds || prev.funds,
           guests: data.config.guests?.length ? data.config.guests : prev.guests,
+          themeId: data.config.themeId || prev.themeId || 'royal-gold',
         }));
         console.log('Cloud data loaded successfully');
       } else if (error && error.code !== 'PGRST116') {
