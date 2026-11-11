@@ -10,6 +10,8 @@ import { motion, AnimatePresence } from 'framer-motion';
 import Envelope from './Envelope';
 import VelvetFloralEnvelope from './VelvetFloralEnvelope';
 import FloralHero from './FloralHero';
+import MughalPalaceDoor from './MughalPalaceDoor';
+import MughalPalaceExperience from './MughalPalaceExperience';
 import SplashIntro from './SplashIntro';
 import Hero from './Hero';
 import OurStory from './OurStory';
@@ -110,7 +112,13 @@ const MainInvitation = ({ config }) => {
       
       <AnimatePresence>
         {!isOpen && (
-          config.themeId === 'blush-floral' ? (
+          config.themeId === 'mughal-palace' ? (
+            <MughalPalaceDoor 
+              initials={config.couple.initials} 
+              onOpen={handleOpen} 
+              t={t}
+            />
+          ) : config.themeId === 'blush-floral' ? (
             <VelvetFloralEnvelope 
               initials={config.couple.initials} 
               onOpen={handleOpen} 
@@ -141,47 +149,78 @@ const MainInvitation = ({ config }) => {
         >
           <Petals />
           
-          {config.themeId === 'blush-floral' ? (
-            <FloralHero
+          {config.themeId === 'mughal-palace' ? (
+            <MughalPalaceExperience
               config={config}
               guestName={guestName}
               t={t}
               lang={lang}
               invitedProgramsLabel={invitedProgramsLabel}
+              invitedEventIds={invitedEventIds}
             />
+          ) : config.themeId === 'blush-floral' ? (
+            <>
+              <FloralHero
+                config={config}
+                guestName={guestName}
+                t={t}
+                lang={lang}
+                invitedProgramsLabel={invitedProgramsLabel}
+              />
+              {/* Save the Date Interactivity */}
+              <section id="save-the-date" className="py-24 bg-cream flex flex-col items-center justify-center border-y border-gold/10">
+                 <div className="mb-12 text-center">
+                    <span className="text-[10px] uppercase tracking-[0.4em] text-gold font-bold">{t.importantNotice}</span>
+                    <h2 className="text-4xl font-serif text-deep-green mt-2">{t.saveTheDate}</h2>
+                 </div>
+                 <ScratchCard revealDate={config.date} t={t} lang={lang} />
+              </section>
+
+              <OurStory stories={config.stories} id="story" t={t} />
+              <div id="events">
+                <Events events={config.events} t={t} lang={lang} invitedEventIds={invitedEventIds} />
+              </div>
+              <div id="venue"><Mandap isPlatinum={true} t={t} /></div>
+              
+              <FoodMenu menu={config.menu} t={t} />
+              <ContributionFunds config={config} t={t} />
+              <WishesWall t={t} weddingId={config.weddingId} guestName={guestName} isOwner={!guestName} />
+              <div id="rsvp">
+                <RSVPForm config={config} t={t} lang={lang} invitedEventIds={invitedEventIds} guestName={guestName} />
+              </div>
+            </>
           ) : (
-            <Hero
-              config={config}
-              guestName={guestName}
-              t={t}
-              lang={lang}
-              invitedProgramsLabel={invitedProgramsLabel}
-            />
+            <>
+              <Hero
+                config={config}
+                guestName={guestName}
+                t={t}
+                lang={lang}
+                invitedProgramsLabel={invitedProgramsLabel}
+              />
+              {/* Save the Date Interactivity */}
+              <section id="save-the-date" className="py-24 bg-cream flex flex-col items-center justify-center border-y border-gold/10">
+                 <div className="mb-12 text-center">
+                    <span className="text-[10px] uppercase tracking-[0.4em] text-gold font-bold">{t.importantNotice}</span>
+                    <h2 className="text-4xl font-serif text-deep-green mt-2">{t.saveTheDate}</h2>
+                 </div>
+                 <ScratchCard revealDate={config.date} t={t} lang={lang} />
+              </section>
+
+              <OurStory stories={config.stories} id="story" t={t} />
+              <div id="events">
+                <Events events={config.events} t={t} lang={lang} invitedEventIds={invitedEventIds} />
+              </div>
+              <div id="venue"><Mandap isPlatinum={true} t={t} /></div>
+              
+              <FoodMenu menu={config.menu} t={t} />
+              <ContributionFunds config={config} t={t} />
+              <WishesWall t={t} weddingId={config.weddingId} guestName={guestName} isOwner={!guestName} />
+              <div id="rsvp">
+                <RSVPForm config={config} t={t} lang={lang} invitedEventIds={invitedEventIds} guestName={guestName} />
+              </div>
+            </>
           )}
-          
-          {/* Save the Date Interactivity */}
-          <section id="save-the-date" className="py-24 bg-cream flex flex-col items-center justify-center border-y border-gold/10">
-             <div className="mb-12 text-center">
-                <span className="text-[10px] uppercase tracking-[0.4em] text-gold font-bold">{t.importantNotice}</span>
-                <h2 className="text-4xl font-serif text-deep-green mt-2">{t.saveTheDate}</h2>
-             </div>
-             <ScratchCard revealDate={config.date} t={t} lang={lang} />
-          </section>
-
-          <OurStory stories={config.stories} id="story" t={t} />
-          <div id="events">
-            <Events events={config.events} t={t} lang={lang} invitedEventIds={invitedEventIds} />
-          </div>
-          <div id="venue"><Mandap isPlatinum={true} t={t} /></div>
-          
-          <FoodMenu menu={config.menu} t={t} />
-
-          <ContributionFunds config={config} t={t} />
-          
-          <WishesWall t={t} weddingId={config.weddingId} guestName={guestName} isOwner={!guestName} />
-          <div id="rsvp">
-            <RSVPForm config={config} t={t} lang={lang} invitedEventIds={invitedEventIds} guestName={guestName} />
-          </div>
           
           <footer className="py-24 text-center bg-cream border-t border-gold/10 relative overflow-hidden">
              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 text-[12rem] font-pinyon text-gold/5 whitespace-nowrap pointer-events-none">

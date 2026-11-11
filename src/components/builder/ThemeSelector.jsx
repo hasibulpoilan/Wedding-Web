@@ -19,6 +19,14 @@ export const THEMES = [
     previewGradient: 'from-[#FFF8F3] via-[#FFEBE5] to-[#721C24]',
     accentColor: '#E07A7A',
   },
+  {
+    id: 'mughal-palace',
+    name: 'Noor Mahal (Mughal Palace & Jeweled Chest)',
+    badge: 'Royal Islamic & Mughal',
+    description: 'Ornate emerald green Mughal doors, palace interior, jeweled chest letter, celestial astrolabe countdown & sacred dua.',
+    previewGradient: 'from-[#0A1F17] via-[#0E281F] to-[#D4AF37]',
+    accentColor: '#D4AF37',
+  },
 ];
 
 const ThemeSelector = ({ currentTheme = 'royal-gold', onSelectTheme }) => {
@@ -39,7 +47,7 @@ const ThemeSelector = ({ currentTheme = 'royal-gold', onSelectTheme }) => {
         </span>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-2">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-2">
         {THEMES.map((theme) => {
           const isSelected = currentTheme === theme.id;
           return (
