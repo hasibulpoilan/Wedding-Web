@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Calendar, MapPin, Heart, Clock, CheckCircle2, Music, Volume2, VolumeX, Send, Sparkles, Camera } from 'lucide-react';
+import { Calendar, MapPin, Heart, Clock, CheckCircle2, Music, Volume2, VolumeX, Send, Sparkles, Camera, Loader2 } from 'lucide-react';
 import { getSharePhoto } from '../../lib/sharePhoto';
+import { submitGuestRSVP, submitGuestWish } from '../../lib/guestFeedback';
 
 /**
  * MughalPalaceExperience
@@ -23,6 +24,7 @@ export default function MughalPalaceExperience({ config, guestName: guestNamePro
   const [rsvpSubmitted, setRsvpSubmitted] = useState(false);
   const [guestCount, setGuestCount] = useState(1);
   const [wishesText, setWishesText] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Fallback names & data from config
   const groomName = config?.couple?.name1 || config?.couple?.groom || 'Hasibul';
@@ -555,9 +557,48 @@ export default function MughalPalaceExperience({ config, guestName: guestNamePro
                 </div>
               ) : (
                 <form 
-                  onSubmit={(e) => {
+                  onSubmit={async (e) => {
                     e.preventDefault();
-                    setRsvpSubmitted(true);
+                    setIsSubmitting(true);
+                    const weddingId = config?.weddingId || 'default-wedding';
+                    const guest = guestDisplay === 'Honored Guest & Family' ? (config?.guestName || 'Special Guest') : guestDisplay;
+
+                    // 1. Submit RSVP responses
+                    const eventResponses = {};
+                    (eventsList.length > 0 ? eventsList : [{ id: 'all', title: 'Wedding Ceremony' }]).forEach(ev => {
+                      const title = ev.title || ev.id;
+                      eventResponses[ev.id || title] = (rsvpAttending === 'yes' && (rsvpEvents.includes(title) || rsvpEvents.length === 0))
+                        ? 'attending' 
+                        : 'declined';
+                    });
+
+                    try {
+                      await submitGuestRSVP({
+                        weddingId,
+                        guestName: guest,
+                        responses: {
+                          status: rsvpAttending,
+                          guests: guestCount,
+                          events: eventResponses,
+                        }
+                      });
+
+                      // 2. Submit Wish message if written
+                      if (wishesText.trim()) {
+                        await submitGuestWish({
+                          weddingId,
+                          guestName: guest,
+                          message: wishesText.trim(),
+                          emoji: '🤲',
+                        });
+                      }
+                      setRsvpSubmitted(true);
+                    } catch (err) {
+                      console.error('Error submitting feedback:', err);
+                      setRsvpSubmitted(true);
+                    } finally {
+                      setIsSubmitting(false);
+                    }
                   }}
                   className="space-y-4"
                 >
@@ -651,10 +692,20 @@ export default function MughalPalaceExperience({ config, guestName: guestNamePro
 
                   <button
                     type="submit"
-                    className="w-full py-3 rounded-xl bg-gradient-to-r from-amber-500 via-amber-400 to-amber-600 text-[#07160F] font-serif font-bold text-xs tracking-widest uppercase shadow-[0_5px_20px_rgba(245,158,11,0.3)] hover:opacity-95 transition-opacity flex items-center justify-center gap-2"
+                    disabled={isSubmitting}
+                    className="w-full py-3 rounded-xl bg-gradient-to-r from-amber-500 via-amber-400 to-amber-600 text-[#07160F] font-serif font-bold text-xs tracking-widest uppercase shadow-[0_5px_20px_rgba(245,158,11,0.3)] hover:opacity-95 transition-opacity flex items-center justify-center gap-2 disabled:opacity-50"
                   >
-                    <Send size={14} />
-                    <span>Confirm Response</span>
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 size={14} className="animate-spin" />
+                        <span>Submitting...</span>
+                      </>
+                    ) : (
+                      <>
+                        <Send size={14} />
+                        <span>Confirm Response</span>
+                      </>
+                    )}
                   </button>
                 </form>
               )}

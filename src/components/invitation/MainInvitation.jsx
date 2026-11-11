@@ -114,6 +114,7 @@ const MainInvitation = ({ config }) => {
         {!isOpen && (
           config.themeId === 'mughal-palace' ? (
             <MughalPalaceDoor 
+              config={config}
               initials={config.couple.initials} 
               onOpen={handleOpen} 
               t={t}

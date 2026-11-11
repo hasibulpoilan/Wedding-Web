@@ -8,7 +8,7 @@ import { motion, AnimatePresence } from 'framer-motion';
  * The left door is an exact horizontal mirror of the right door for flawless symmetry.
  * When unlocked, plays a smooth 3D opening animation parting the doors into the royal invitation.
  */
-export default function MughalPalaceDoor({ onOpen, config }) {
+export default function MughalPalaceDoor({ onOpen, config, initials }) {
   const [isOpen, setIsOpen] = useState(false);
 
   const handleOpen = () => {
@@ -19,8 +19,16 @@ export default function MughalPalaceDoor({ onOpen, config }) {
     }, 1400);
   };
 
-  const groomName = config?.couple?.groom?.split(' ')[0] || 'Hasibul';
-  const brideName = config?.couple?.bride?.split(' ')[0] || 'Pailan';
+  const name1 = config?.couple?.name1 || config?.couple?.groom || '';
+  const name2 = config?.couple?.name2 || config?.couple?.bride || '';
+  
+  // Dynamic initials calculation from actual names or initials config
+  const derivedInitials = initials || (name1 && name2 
+    ? `${name1.trim().charAt(0).toUpperCase()}&${name2.trim().charAt(0).toUpperCase()}` 
+    : 'H&P');
+
+  const groomName = name1 ? name1.split(' ')[0] : 'Groom';
+  const brideName = name2 ? name2.split(' ')[0] : 'Bride';
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#06120D] overflow-hidden select-none">
@@ -144,7 +152,7 @@ export default function MughalPalaceDoor({ onOpen, config }) {
                   <div className="relative w-20 h-20 rounded-full p-[2px] bg-gradient-to-b from-amber-200 via-amber-500 to-amber-800 shadow-[0_8px_25px_rgba(0,0,0,0.8)] flex items-center justify-center">
                     <div className="w-full h-full rounded-full bg-[#0D241B] border border-amber-300/40 flex flex-col items-center justify-center text-center shadow-inner">
                       <span className="font-serif italic text-amber-200 text-lg tracking-widest font-bold">
-                        {groomName.charAt(0)}&{brideName.charAt(0)}
+                        {derivedInitials}
                       </span>
                       <span className="text-[8px] uppercase tracking-widest text-amber-400/90 font-medium mt-0.5">
                         OPEN
